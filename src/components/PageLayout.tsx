@@ -1,20 +1,39 @@
 "use client";
 
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { Button, ConfigProvider, Layout, Menu, Select, theme } from "antd";
+import { Button, Card, ConfigProvider, Layout, Menu, Select, theme } from "antd";
 import { useState } from "react";
+import ClusterSummary from "@/components/ClusterSummary";
+import ClusterTabs from "@/components/ClusterTabs";
+import NamespaceList from "@/components/NamespaceList";
+import EventList from "@/components/EventList";
 
 const { Header, Sider, Content } = Layout;
 
-type PageLayoutProps = {
-  children: React.ReactNode;
-};
+type PageKey = "cluster" | "namespace" | "event";
 
-export default function PageLayout({ children }: PageLayoutProps) {
+export default function PageLayout() {
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey, setSelectedKey] = useState("cluster");
+  const [selectedKey, setSelectedKey] = useState<PageKey>("cluster");
   const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
   const isDark = themeMode === "dark";
+
+  const renderContent = () => {
+    if (selectedKey === "namespace") {
+      return <NamespaceList />;
+    }
+    if (selectedKey === "event") {
+      return <EventList />;
+    }
+    return (
+      <Layout style={{ background: "transparent" }}>
+        <ClusterSummary />
+        <Card size="small" title="资源列表">
+          <ClusterTabs />
+        </Card>
+      </Layout>
+    );
+  };
 
   return (
     <ConfigProvider
@@ -40,8 +59,12 @@ export default function PageLayout({ children }: PageLayoutProps) {
             mode="inline"
             theme={isDark ? "dark" : "light"}
             selectedKeys={[selectedKey]}
-            items={[{ key: "cluster", label: "集群" }]}
-            onClick={(item) => setSelectedKey(item.key)}
+            items={[
+              { key: "cluster", label: "集群" },
+              { key: "namespace", label: "命名空间" },
+              { key: "event", label: "事件" },
+            ]}
+            onClick={(item) => setSelectedKey(item.key as PageKey)}
           />
         </Sider>
         <Layout>
@@ -70,7 +93,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
               onChange={(value: "light" | "dark") => setThemeMode(value)}
             />
           </Header>
-          <Content style={{ padding: 16 }}>{children}</Content>
+          <Content style={{ padding: 16 }}>{renderContent()}</Content>
         </Layout>
       </Layout>
     </ConfigProvider>
