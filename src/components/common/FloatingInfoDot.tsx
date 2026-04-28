@@ -40,7 +40,8 @@ export default function FloatingInfoDot() {
             火山引擎-容器服务
           </Typography.Title>
           <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
-            本项目依赖的 k8s 集群部署在火山引擎上面，可以登录火山引擎控制台查看。
+            本项目依赖的 k8s 集群部署在火山引擎上面
+            {/* ，可以登录火山引擎控制台查看。 */}
           </Typography.Paragraph>
           {/* <div
             style={{

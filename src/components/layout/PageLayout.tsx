@@ -71,8 +71,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
         width={220}
         theme={isDark ? "dark" : "light"}
       >
-        <div style={{ height: 56, padding: "16px", fontWeight: 600 }}>导航</div>
-        <div style={{ padding: "0 12px 12px" }}>
+        <div style={{ padding: "12px 12px 8px" }}>
           <Button
             block
             icon={<HomeOutlined />}
@@ -82,6 +81,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             返回首页
           </Button>
         </div>
+        <div style={{ height: 56, padding: "16px", fontWeight: 600 }}>导航</div>
         <Menu
           mode="inline"
           theme={isDark ? "dark" : "light"}
