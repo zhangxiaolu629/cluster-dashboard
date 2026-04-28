@@ -1,0 +1,62 @@
+{
+  "name": "cluster-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "node ./scripts/dev-with-port-check.js",
+    "build": "node ./node_modules/next/dist/bin/next build",
+    "start": "node ./node_modules/next/dist/bin/next start",
+    "lint": "eslint",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "setup:shared-links": "node ./scripts/setup-shared-links.mjs",
+    "prepare": "npm run setup:shared-links && husky"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-yaml": "^6.1.3",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@hookform/resolvers": "^5.2.2",
+    "@uiw/react-codemirror": "^4.25.9",
+    "@volcengine/openapi": "^1.36.1",
+    "antd": "^6.3.6",
+    "dayjs": "^1.11.20",
+    "framer-motion": "^12.38.0",
+    "js-yaml": "^4.1.1",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "zod": "^4.3.6"
+  },
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "^1.32.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.5",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.0",
+    "msw": "^2.13.6",
+    "prettier": "^3.8.3",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^4.1.5"
+  }
+}

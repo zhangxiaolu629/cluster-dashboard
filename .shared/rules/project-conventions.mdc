@@ -1,0 +1,28 @@
+---
+description: 项目通用开发规范（由 CLAUDE.md 迁移）
+alwaysApply: true
+---
+
+# 项目开发规范
+
+## Bug Fix 规范
+
+- 每次完成 bugfix 后，必须说明两点：
+  - 问题出在哪里
+  - 具体如何修复
+
+## 代码审查规范
+
+- 进行代码审查时，优先阅读 `docs/code-review/` 下的规则
+- 特别关注：`docs/code-review/nextjs-checklist.md`
+- 输出格式遵循：`docs/code-review/README.md`
+
+## 会话归档规范
+
+- 重要会话结束后，统一归档到 `docs/specstory/`
+
+## 额外约定
+
+- 不要自动提交代码，只有在用户明确要求时才执行 `git commit`
+- 前端实现无需兼容 IE 浏览器
+- 不要在每次改动后都重新 build 代码，只有在必要验证或用户明确要求时才执行 build

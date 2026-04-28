@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+build
+coverage
+reports
+test-results
+package-lock.json

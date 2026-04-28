@@ -1,0 +1,52 @@
+name: Lint (dev)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-cache-${{ hashFiles('package-lock.json', 'next.config.ts', 'tsconfig.json', 'src/**/*', 'public/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-cache-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
