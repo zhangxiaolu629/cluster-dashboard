@@ -20,7 +20,7 @@ export default function AppLinkButton({
   block,
   children,
   style,
-  prefetch = true,
+  prefetch = false,
   ...linkProps
 }: AppLinkButtonProps) {
   const { token } = theme.useToken();

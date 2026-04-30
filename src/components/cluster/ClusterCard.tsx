@@ -38,7 +38,7 @@ export default function ClusterCard({ id, name, phase, statusConfig, onCopyId }:
     >
       <Link
         href={clusterHref}
-        prefetch
+        prefetch={false}
         aria-label={isRunning ? `进入集群 ${name}` : `查看集群 ${name}`}
         style={{
           position: "absolute",

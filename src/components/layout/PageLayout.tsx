@@ -76,7 +76,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             {
               key: "cluster",
               label: (
-                <Link href={getMenuPath("cluster")} prefetch>
+                <Link href={getMenuPath("cluster")} prefetch={false}>
                   集群
                 </Link>
               ),
@@ -90,7 +90,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
                 {
                   key: "deployment",
                   label: (
-                    <Link href={getMenuPath("deployment")} prefetch>
+                    <Link href={getMenuPath("deployment")} prefetch={false}>
                       Deployment
                     </Link>
                   ),
@@ -99,7 +99,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
                 {
                   key: "statefulset",
                   label: (
-                    <Link href={getMenuPath("statefulset")} prefetch>
+                    <Link href={getMenuPath("statefulset")} prefetch={false}>
                       StatefulSet
                     </Link>
                   ),
@@ -110,7 +110,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             {
               key: "yaml-create",
               label: (
-                <Link href={getMenuPath("yaml-create")} prefetch>
+                <Link href={getMenuPath("yaml-create")} prefetch={false}>
                   YAML新建
                 </Link>
               ),
@@ -119,7 +119,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             {
               key: "namespace",
               label: (
-                <Link href={getMenuPath("namespace")} prefetch>
+                <Link href={getMenuPath("namespace")} prefetch={false}>
                   命名空间
                 </Link>
               ),
@@ -128,7 +128,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             {
               key: "service",
               label: (
-                <Link href={getMenuPath("service")} prefetch>
+                <Link href={getMenuPath("service")} prefetch={false}>
                   Service
                 </Link>
               ),
@@ -137,7 +137,7 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             {
               key: "event",
               label: (
-                <Link href={getMenuPath("event")} prefetch>
+                <Link href={getMenuPath("event")} prefetch={false}>
                   事件
                 </Link>
               ),
