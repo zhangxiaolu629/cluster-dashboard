@@ -17,7 +17,7 @@ export default async function YamlCreatePage({
   return (
     <PageLayout selectedKey="yaml-create" clusterId={id}>
       <Suspense fallback={null}>
-        <YamlCreate clusterId={id} initialYaml={initialYaml} />
+        <YamlCreate key={kind ?? "none"} clusterId={id} initialYaml={initialYaml} />
       </Suspense>
     </PageLayout>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Steps, Button, Card, Space, Typography, Alert, message } from "antd";
@@ -169,6 +169,8 @@ export default function CreateDeploymentForm() {
 
   // 自动保存草稿
   useEffect(() => {
+    // react-hook-form watch 订阅用于本地草稿同步，按官方模式使用。
+    // eslint-disable-next-line react-hooks/incompatible-library
     const subscription = watch((value) => {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(value));
@@ -319,11 +321,23 @@ export default function CreateDeploymentForm() {
       },
     };
 
+    type ContainerResourceMap = {
+      cpu?: string;
+      memory?: string;
+    };
+    type ContainerResourceConfig = {
+      requests: ContainerResourceMap;
+      limits: ContainerResourceMap;
+    };
+    type ContainerConfig = Record<string, unknown> & {
+      resources?: ContainerResourceConfig;
+    };
+
     const deploymentSpec = deployment.spec as {
       strategy: Record<string, unknown>;
       template: {
         spec: {
-          containers: Array<Record<string, unknown>>;
+          containers: Array<ContainerConfig>;
         };
       };
     };

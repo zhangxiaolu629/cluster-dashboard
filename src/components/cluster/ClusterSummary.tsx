@@ -67,10 +67,12 @@ export default function ClusterSummary({
           setClusterInfo({
             Id: matchedCluster.Id,
             metadata: {
-              name: matchedCluster.Name,
-              creationTimestamp: matchedCluster.CreateTime,
+              name: matchedCluster.Name ?? "",
+              creationTimestamp: matchedCluster.CreateTime ?? "",
             },
-            Status: matchedCluster.Status,
+            Status: {
+              Phase: matchedCluster.Status?.Phase ?? "Unknown",
+            },
           });
         }
       } catch (error) {

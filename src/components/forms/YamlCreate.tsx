@@ -2,12 +2,11 @@
 
 import { Card, Button, message, Space, Alert } from "antd";
 import { useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import CodeMirror from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import yaml_lib from "js-yaml";
-import { getInitialYamlForKind } from "@/lib/k8sYamlTemplates";
 
 interface ValidationResult {
   valid: boolean;
@@ -35,11 +34,7 @@ interface YamlCreateProps {
 
 export default function YamlCreate({ clusterId, initialYaml = "" }: YamlCreateProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const kindParam = searchParams.get("kind");
-  const [yamlContent, setYamlContent] = useState(
-    kindParam === null ? initialYaml : getInitialYamlForKind(kindParam)
-  );
+  const [yamlContent, setYamlContent] = useState(initialYaml);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [successDescription, setSuccessDescription] =

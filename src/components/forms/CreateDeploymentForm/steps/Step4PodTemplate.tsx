@@ -4,7 +4,7 @@ import { Form, Input, Select, Row, Col, Card } from "antd";
 import { useFormContext, Controller } from "react-hook-form";
 
 export default function Step4PodTemplate() {
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext();
 
   return (
     <div>

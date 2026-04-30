@@ -4,7 +4,7 @@ import { Form, Input, Select, InputNumber, Row, Col, Card, Button } from "antd";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 
 export default function Step2Container() {
-  const { control, setValue } = useFormContext();
+  const { control } = useFormContext();
   const {
     fields: envFields,
     append: appendEnv,

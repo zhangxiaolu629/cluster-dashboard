@@ -1,7 +1,6 @@
 "use client";
 
-import { Empty, Button, Typography, Space } from "antd";
-import { FileTextOutlined, PlusOutlined } from "@ant-design/icons";
+import { Empty, Typography, Space } from "antd";
 
 const { Text, Paragraph } = Typography;
 
