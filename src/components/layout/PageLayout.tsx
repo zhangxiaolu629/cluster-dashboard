@@ -15,7 +15,8 @@ import {
 } from "@ant-design/icons";
 import { Button, Layout, Menu } from "antd";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import AppLinkButton from "@/components/common/AppLinkButton";
 import ResponsiveContainer from "./ResponsiveContainer";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -39,7 +40,6 @@ interface PageLayoutProps {
 
 export default function PageLayout({ selectedKey, clusterId, children }: PageLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -53,15 +53,6 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
     return `/cluster/${clusterId}/${key}`;
   };
 
-  const handleMenuClick = (info: { key: string }) => {
-    const key = info.key;
-    if (key === "workload") return;
-
-    const pageKey = key as PageKey;
-    const targetPath = getMenuPath(pageKey);
-    router.push(targetPath);
-  };
-
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -72,14 +63,9 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
         theme={isDark ? "dark" : "light"}
       >
         <div style={{ padding: "12px 12px 8px" }}>
-          <Button
-            block
-            icon={<HomeOutlined />}
-            onClick={() => router.push("/")}
-            style={{ textAlign: "left" }}
-          >
+          <AppLinkButton href="/" block icon={<HomeOutlined />}>
             返回首页
-          </Button>
+          </AppLinkButton>
         </div>
         <div style={{ height: 56, padding: "16px", fontWeight: 600 }}>导航</div>
         <Menu
@@ -87,22 +73,77 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
           theme={isDark ? "dark" : "light"}
           selectedKeys={[selectedKey]}
           items={[
-            { key: "cluster", label: "集群", icon: <ClusterOutlined /> },
+            {
+              key: "cluster",
+              label: (
+                <Link href={getMenuPath("cluster")} prefetch>
+                  集群
+                </Link>
+              ),
+              icon: <ClusterOutlined />,
+            },
             {
               key: "workload",
               label: "工作负载",
               icon: <AppstoreOutlined />,
               children: [
-                { key: "deployment", label: "Deployment", icon: <DeploymentUnitOutlined /> },
-                { key: "statefulset", label: "StatefulSet", icon: <PartitionOutlined /> },
+                {
+                  key: "deployment",
+                  label: (
+                    <Link href={getMenuPath("deployment")} prefetch>
+                      Deployment
+                    </Link>
+                  ),
+                  icon: <DeploymentUnitOutlined />,
+                },
+                {
+                  key: "statefulset",
+                  label: (
+                    <Link href={getMenuPath("statefulset")} prefetch>
+                      StatefulSet
+                    </Link>
+                  ),
+                  icon: <PartitionOutlined />,
+                },
               ],
             },
-            { key: "yaml-create", label: "YAML新建", icon: <FileAddOutlined /> },
-            { key: "namespace", label: "命名空间", icon: <NodeIndexOutlined /> },
-            { key: "service", label: "Service", icon: <CodeOutlined /> },
-            { key: "event", label: "事件", icon: <NotificationOutlined /> },
+            {
+              key: "yaml-create",
+              label: (
+                <Link href={getMenuPath("yaml-create")} prefetch>
+                  YAML新建
+                </Link>
+              ),
+              icon: <FileAddOutlined />,
+            },
+            {
+              key: "namespace",
+              label: (
+                <Link href={getMenuPath("namespace")} prefetch>
+                  命名空间
+                </Link>
+              ),
+              icon: <NodeIndexOutlined />,
+            },
+            {
+              key: "service",
+              label: (
+                <Link href={getMenuPath("service")} prefetch>
+                  Service
+                </Link>
+              ),
+              icon: <CodeOutlined />,
+            },
+            {
+              key: "event",
+              label: (
+                <Link href={getMenuPath("event")} prefetch>
+                  事件
+                </Link>
+              ),
+              icon: <NotificationOutlined />,
+            },
           ]}
-          onClick={handleMenuClick}
         />
       </Sider>
       <Layout>

@@ -1,9 +1,10 @@
 "use client";
 
-import { Table, Card, Tag, Spin, Select, Space, Button } from "antd";
+import { Table, Card, Tag, Spin, Select, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import AppLinkButton from "@/components/common/AppLinkButton";
 import dayjs from "dayjs";
 
 export type StatefulSetItem = {
@@ -73,7 +74,6 @@ export default function StatefulSetList({
   initialNamespaces = [],
   initialLoaded = false,
 }: StatefulSetListProps) {
-  const router = useRouter();
   const params = useParams();
   const clusterId = String(params.id ?? "");
   const [data, setData] = useState<StatefulSetItem[]>(initialData);
@@ -151,12 +151,9 @@ export default function StatefulSetList({
           marginBottom: 16,
         }}
       >
-        <Button
-          type="primary"
-          onClick={() => router.push(`/cluster/${clusterId}/yaml-create?kind=StatefulSet`)}
-        >
+        <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=StatefulSet`}>
           YAML新建
-        </Button>
+        </AppLinkButton>
         <Space>
           <Select
             placeholder="选择命名空间"

@@ -1,7 +1,7 @@
 "use client";
 
-import { Input, Table, Card, Spin, Button } from "antd";
-import { useRouter } from "next/navigation";
+import { Input, Table, Card, Spin } from "antd";
+import AppLinkButton from "@/components/common/AppLinkButton";
 import { useState, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 
@@ -47,7 +47,6 @@ export default function NamespaceList({
   initialData = [],
   initialLoaded = false,
 }: NamespaceListProps) {
-  const router = useRouter();
   const [data, setData] = useState<NamespaceItem[]>(initialData);
   const [loading, setLoading] = useState(!initialLoaded);
   const [searchText, setSearchText] = useState("");
@@ -103,12 +102,9 @@ export default function NamespaceList({
           marginBottom: 16,
         }}
       >
-        <Button
-          type="primary"
-          onClick={() => router.push(`/cluster/${clusterId}/yaml-create?kind=Namespace`)}
-        >
+        <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=Namespace`}>
           YAML新建
-        </Button>
+        </AppLinkButton>
         <Input.Search
           placeholder="搜索命名空间..."
           allowClear

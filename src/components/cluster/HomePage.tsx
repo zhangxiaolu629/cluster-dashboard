@@ -6,13 +6,10 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   LoadingOutlined,
-  CopyOutlined,
-  RightOutlined,
   PlusOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import ClusterCard from "./ClusterCard";
 
 const { Title, Text } = Typography;
@@ -53,8 +50,6 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
     failed: 0,
     creating: 0,
   });
-  const router = useRouter();
-
   useEffect(() => {
     if (!initialLoaded) {
       const fetchClusters = async () => {
@@ -106,10 +101,6 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
       message.error("复制失败，请手动复制");
     }
   }, []);
-
-  const handleClusterClick = (clusterId: string) => {
-    router.push(`/cluster/${clusterId}`);
-  };
 
   const getStatusConfig = (phase: string) => {
     return STATUS_CONFIG[phase as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.default;
@@ -239,14 +230,13 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
                   </Title>
                 </div>
                 <Row gutter={[16, 16]}>
-                  {runningClusters.map((cluster, index) => (
+                  {runningClusters.map((cluster) => (
                     <Col xs={24} sm={12} md={8} key={cluster.Id}>
                       <ClusterCard
                         id={cluster.Id}
                         name={cluster.Name}
                         phase={cluster.Status.Phase}
                         statusConfig={getStatusConfig(cluster.Status.Phase)}
-                        index={index}
                         onCopyId={handleCopyId}
                       />
                     </Col>
@@ -271,14 +261,13 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
                   </Title>
                 </div>
                 <Row gutter={[16, 16]}>
-                  {otherClusters.map((cluster, index) => (
+                  {otherClusters.map((cluster) => (
                     <Col xs={24} sm={12} md={8} key={cluster.Id}>
                       <ClusterCard
                         id={cluster.Id}
                         name={cluster.Name}
                         phase={cluster.Status.Phase}
                         statusConfig={getStatusConfig(cluster.Status.Phase)}
-                        index={index}
                         onCopyId={handleCopyId}
                       />
                     </Col>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Card, Tag, Select, Space, Button } from "antd";
+import { Table, Card, Tag, Select, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   CheckCircleOutlined,
@@ -9,7 +9,8 @@ import {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import AppLinkButton from "@/components/common/AppLinkButton";
 import TableSkeleton from "@/components/common/TableSkeleton";
 import EmptyState from "@/components/common/EmptyState";
 import { formatTime, getStatusTag } from "@/lib/utils";
@@ -109,7 +110,6 @@ export default function DeploymentList({
   const [loading, setLoading] = useState(!initialLoaded);
   const [namespaces, setNamespaces] = useState<string[]>(initialNamespaces);
   const [selectedNamespace, setSelectedNamespace] = useState<string | null>(null);
-  const router = useRouter();
   const params = useParams();
   const clusterId = params.id as string;
 
@@ -197,15 +197,12 @@ export default function DeploymentList({
         }}
       >
         <Space wrap>
-          <Button
-            type="primary"
-            onClick={() => router.push(`/cluster/${clusterId}/deployment/create`)}
-          >
+          <AppLinkButton variant="primary" href={`/cluster/${clusterId}/deployment/create`}>
             新建
-          </Button>
-          <Button onClick={() => router.push(`/cluster/${clusterId}/yaml-create?kind=Deployment`)}>
+          </AppLinkButton>
+          <AppLinkButton href={`/cluster/${clusterId}/yaml-create?kind=Deployment`}>
             YAML新建
-          </Button>
+          </AppLinkButton>
         </Space>
         <Select
           placeholder="选择命名空间"
@@ -224,12 +221,9 @@ export default function DeploymentList({
             title="暂无 Deployment"
             description="还没有任何 Deployment，点击下方按钮创建第一个"
             action={
-              <Button
-                type="primary"
-                onClick={() => router.push(`/cluster/${clusterId}/deployment/create`)}
-              >
+              <AppLinkButton variant="primary" href={`/cluster/${clusterId}/deployment/create`}>
                 创建 Deployment
-              </Button>
+              </AppLinkButton>
             }
           />
         ) : (

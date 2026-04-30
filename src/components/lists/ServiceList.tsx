@@ -1,9 +1,9 @@
 "use client";
 
-import { Table, Card, Tag, Spin, Input, Button } from "antd";
+import { Table, Card, Tag, Spin, Input } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import AppLinkButton from "@/components/common/AppLinkButton";
 import dayjs from "dayjs";
 
 export type ServiceItem = {
@@ -71,7 +71,6 @@ export default function ServiceList({
   initialData = [],
   initialLoaded = false,
 }: ServiceListProps) {
-  const router = useRouter();
   const [data, setData] = useState<ServiceItem[]>(initialData);
   const [loading, setLoading] = useState(!initialLoaded);
   const [searchText, setSearchText] = useState("");
@@ -127,12 +126,9 @@ export default function ServiceList({
           marginBottom: 16,
         }}
       >
-        <Button
-          type="primary"
-          onClick={() => router.push(`/cluster/${clusterId}/yaml-create?kind=Service`)}
-        >
+        <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=Service`}>
           YAML新建
-        </Button>
+        </AppLinkButton>
         <Input.Search
           placeholder="搜索Service名称..."
           allowClear
