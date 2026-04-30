@@ -151,7 +151,10 @@ export default function StatefulSetList({
           marginBottom: 16,
         }}
       >
-        <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=StatefulSet`}>
+        <AppLinkButton
+          variant="primary"
+          href={`/cluster/${clusterId}/yaml-create?kind=StatefulSet`}
+        >
           YAML新建
         </AppLinkButton>
         <Space>

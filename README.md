@@ -2,6 +2,32 @@
 
 基于 **Next.js App Router** 的 Web 控制台，用于查看与操作 Kubernetes 资源，并与火山引擎等集群源对接。技术栈为 **Next.js 16、React 19、TypeScript、Ant Design 6、Tailwind CSS 4** 等，详见 [架构文档](#架构文档)。
 
+## 文档索引
+
+### 架构文档
+
+系统性的目录结构、路由、核心模块、数据流与配置说明见项目根目录：
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**
+
+架构文档如需随代码更新，可配合仓库内 Cursor Skill **`architecture-doc-generator`**（见下表）按代码现状重新生成或增补。
+
+### 测试文档
+
+测试分层、运行方式、目录说明与到「自动化测试方案」的链接：
+
+- **[docs/testing.md](./docs/testing.md)**（测试说明与命令索引）
+- **[docs/testing-plan.md](./docs/testing-plan.md)**（自动化测试方案，目标、分层、Mock 与 CI 策略等）
+
+### 共享规则仓库
+
+- 统一规则源目录：`/.shared/rules`
+- 本地通过符号链接（Windows 使用 junction）将以下目录指向共享规则：
+  - `.cursor/rules -> .shared/rules`
+  - `.trae/rules -> .shared/rules`
+- 首次 `npm install` 会自动执行 `prepare`，创建/修复这些链接；也可手动执行：
+  - `npm run setup:shared-links`
+
 ## 环境要求
 
 - **Node.js**：`20.x`（见 `package.json` 中 `engines`）
@@ -34,33 +60,57 @@ npm run dev
 
 ## 环境变量
 
-业务与接口依赖的密钥、集群地址等请通过环境变量配置；本地可自建 `.env.local`（勿提交含密钥的明文）。具体键名以 `src/app/api`、`src/lib` 中的引用与部署文档为准。
+业务与接口依赖的密钥、集群地址等请通过环境变量配置；本地可使用 `.env.local`（勿提交到仓库）。
 
-## 文档索引
+### 环境变量矩阵
 
-### 架构文档
+| 变量名                   | 必填                  | 使用位置                                                                                                                         | 用途                                | 本地开发               | Vercel 预览环境        | Vercel 生产环境        |
+| ------------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ---------------------- | ---------------------- | ---------------------- |
+| `VOLC_ACCESS_KEY_ID`     | 是（涉及火山接口时）  | `src/app/page.tsx`、`src/app/cluster/[id]/page.tsx`、`src/app/api/volcengine/route.ts`、`src/app/api/kubernetes/create/route.ts` | 火山引擎 OpenAPI 鉴权 AK            | 配置测试账号 AK        | 建议独立预览账号 AK    | 生产账号 AK            |
+| `VOLC_SECRET_ACCESS_KEY` | 是（涉及火山接口时）  | 同上                                                                                                                             | 火山引擎 OpenAPI 鉴权 SK            | 配置测试账号 SK        | 建议独立预览账号 SK    | 生产账号 SK            |
+| `REGION`                 | 是（涉及火山接口时）  | 同上                                                                                                                             | 火山引擎 Region（如 `cn-beijing`）  | 与测试集群一致         | 与预览集群一致         | 与生产集群一致         |
+| `K8S_API_SERVER`         | 是（访问 K8s 资源时） | `src/lib/k8s.ts`（被 `src/app/api/*` 与部分页面调用）                                                                            | Kubernetes API Server 地址          | 指向测试集群 apiserver | 指向预览集群 apiserver | 指向生产集群 apiserver |
+| `K8S_TOKEN`              | 是（访问 K8s 资源时） | `src/lib/k8s.ts`                                                                                                                 | 访问 Kubernetes API 的 Bearer Token | 低权限测试 Token       | 低权限预览 Token       | 最小权限生产 Token     |
 
-系统性的目录结构、路由、核心模块、数据流与配置说明见项目根目录：
+> 说明：
+>
+> - 当前代码中上述变量使用了非空断言（`!`）或启动即校验，缺失会导致请求失败或启动时报错。
+> - `K8S_API_SERVER` 与 `K8S_TOKEN` 在 `src/lib/k8s.ts` 中是模块加载即检查，因此任何引用 `k8sFetch` 的服务端逻辑都会依赖这两个变量。
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)**
+### 本地 `.env.local` 示例
 
-架构文档如需随代码更新，可配合仓库内 Cursor Skill **`architecture-doc-generator`**（见下表）按代码现状重新生成或增补。
+```bash
+VOLC_ACCESS_KEY_ID=your_ak
+VOLC_SECRET_ACCESS_KEY=your_sk
+REGION=cn-beijing
+K8S_API_SERVER=https://your-k8s-api-server
+K8S_TOKEN=your_k8s_bearer_token
+```
 
-### 测试文档
+## 部署说明（Vercel）
 
-测试分层、运行方式、目录说明与到「自动化测试方案」的链接：
+### 1) 部署前检查
 
-- **[docs/testing.md](./docs/testing.md)**（测试说明与命令索引）
-- **[docs/testing-plan.md](./docs/testing-plan.md)**（自动化测试方案，目标、分层、Mock 与 CI 策略等）
+- Node 版本保持 `20.x`（与 `package.json#engines` 一致）。
+- 在 Vercel Project Settings -> Environment Variables 中按上表配置 `Preview` 与 `Production`。
+- 确认目标环境可访问 Kubernetes API Server（网络与证书策略一致）。
 
-### 共享规则仓库
+### 2) 构建与启动
 
-- 统一规则源目录：`/.shared/rules`
-- 本地通过符号链接（Windows 使用 junction）将以下目录指向共享规则：
-  - `.cursor/rules -> .shared/rules`
-  - `.trae/rules -> .shared/rules`
-- 首次 `npm install` 会自动执行 `prepare`，创建/修复这些链接；也可手动执行：
-  - `npm run setup:shared-links`
+- `vercel.json` 已定义：
+  - `installCommand`: `npm ci`
+  - `buildCommand`: `npm run build`
+  - `framework`: `nextjs`
+- 本地模拟生产：
+  - `npm ci`
+  - `npm run build`
+  - `npm run start`
+
+### 3) 发布建议
+
+- `Preview` 使用测试/沙箱集群与最小权限凭据，避免误操作生产资源。
+- `Production` 使用独立生产凭据，严禁与 Preview 共用同一组 AK/SK、Token。
+- 凭据轮换后同步更新 Vercel 环境变量并重新部署验证。
 
 ## 项目 Cursor Skills 列表
 

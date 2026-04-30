@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Card, Divider, List, Typography } from "antd";
 
-const VOLCENGINE_LOGIN_URL =
-  "https://console.volcengine.com/auth/login/user/2000010275";
+const VOLCENGINE_LOGIN_URL = "https://console.volcengine.com/auth/login/user/2000010275";
 
 export default function FloatingInfoDot() {
   const [open, setOpen] = useState(false);
@@ -81,11 +80,7 @@ export default function FloatingInfoDot() {
           </Typography.Title>
           <List
             size="small"
-            dataSource={[
-              "资源的更新、删除功能",
-              "auth功能",
-              "AI对话功能",
-            ]}
+            dataSource={["资源的更新、删除功能", "auth功能", "AI对话功能"]}
             renderItem={(item, index) => (
               <List.Item style={{ paddingInline: 0 }}>
                 {index + 1}）{item}

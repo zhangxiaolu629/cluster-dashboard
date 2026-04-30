@@ -228,7 +228,7 @@ export default function YamlCreate({ clusterId, initialYaml = "" }: YamlCreatePr
               />
             )}
 
-            <Space style={{ float: "right", marginTop:'30px' }}>
+            <Space style={{ float: "right", marginTop: "30px" }}>
               <Button
                 onClick={() => {
                   setYamlContent("");

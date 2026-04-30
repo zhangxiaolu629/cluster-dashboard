@@ -20,13 +20,7 @@ interface ClusterCardProps {
   onCopyId: (id: string, e: React.MouseEvent) => void;
 }
 
-export default function ClusterCard({
-  id,
-  name,
-  phase,
-  statusConfig,
-  onCopyId,
-}: ClusterCardProps) {
+export default function ClusterCard({ id, name, phase, statusConfig, onCopyId }: ClusterCardProps) {
   const isRunning = phase === "Running";
   const [hovered, setHovered] = useState(false);
 
