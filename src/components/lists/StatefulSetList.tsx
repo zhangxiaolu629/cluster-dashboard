@@ -22,6 +22,31 @@ interface StatefulSetListProps {
   initialLoaded?: boolean;
 }
 
+type NamespaceResponse = {
+  items?: Array<{
+    metadata?: {
+      name?: string;
+    };
+  }>;
+};
+
+type StatefulSetResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      namespace?: string;
+      creationTimestamp?: string;
+    };
+    spec?: {
+      replicas?: number;
+    };
+    status?: {
+      readyReplicas?: number;
+    };
+  }>;
+};
+
 const columns: ColumnsType<StatefulSetItem> = [
   {
     title: "名称",
@@ -88,9 +113,11 @@ export default function StatefulSetList({
     const fetchNamespaces = async () => {
       try {
         const response = await fetch("/api/namespaces");
-        const result = await response.json();
+        const result = (await response.json()) as NamespaceResponse;
         if (result.items) {
-          const names = result.items.map((item: any) => item.metadata?.name).filter(Boolean);
+          const names = result.items
+            .map((item) => item.metadata?.name)
+            .filter((name): name is string => Boolean(name));
           setNamespaces(names);
         } else {
           setNamespaces([]);
@@ -104,7 +131,6 @@ export default function StatefulSetList({
 
   useEffect(() => {
     if (initialLoaded && !selectedNamespace) {
-      setLoading(false);
       return;
     }
     const fetchStatefulSets = async () => {
@@ -114,10 +140,10 @@ export default function StatefulSetList({
           ? `/api/statefulsets?namespace=${selectedNamespace}`
           : "/api/statefulsets";
         const response = await fetch(url);
-        const result = await response.json();
+        const result = (await response.json()) as StatefulSetResponse;
 
         if (result.items) {
-          const mappedData: StatefulSetItem[] = result.items.map((item: any, index: number) => ({
+          const mappedData: StatefulSetItem[] = result.items.map((item, index) => ({
             key: item.metadata?.uid || `sts-${index}`,
             name: item.metadata?.name || "",
             namespace: item.metadata?.namespace || "",

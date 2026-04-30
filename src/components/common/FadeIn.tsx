@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 interface FadeInProps {
   children: React.ReactNode;
@@ -18,12 +17,6 @@ export default function FadeIn({
   duration = 0.3,
   className,
 }: FadeInProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const getInitialPosition = () => {
     switch (direction) {
       case "up":
@@ -52,10 +45,6 @@ export default function FadeIn({
     }
   };
 
-  if (!isClient) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       initial={getInitialPosition()}
@@ -77,16 +66,6 @@ interface SlideProps {
 }
 
 export function Slide({ children, active, direction = "right", className }: SlideProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, x: direction === "right" ? 50 : -50 }}

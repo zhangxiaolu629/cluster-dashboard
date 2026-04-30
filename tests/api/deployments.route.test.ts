@@ -13,9 +13,11 @@ describe("GET /api/deployments", () => {
 
   it("uses cluster-wide deployments path when namespace not provided", async () => {
     vi.mocked(k8sFetch).mockResolvedValue({ items: [] });
-    const request = new Request("http://localhost:3001/api/deployments");
+    const request = new Request("http://localhost:3001/api/deployments") as Parameters<
+      typeof GET
+    >[0];
 
-    const response = await GET(request as any);
+    const response = await GET(request);
     const body = await response.json();
 
     expect(k8sFetch).toHaveBeenCalledWith("/apis/apps/v1/deployments");
@@ -25,9 +27,11 @@ describe("GET /api/deployments", () => {
 
   it("uses namespaced deployments path when namespace is provided", async () => {
     vi.mocked(k8sFetch).mockResolvedValue({ items: [{ metadata: { name: "demo" } }] });
-    const request = new Request("http://localhost:3001/api/deployments?namespace=default");
+    const request = new Request(
+      "http://localhost:3001/api/deployments?namespace=default"
+    ) as Parameters<typeof GET>[0];
 
-    const response = await GET(request as any);
+    const response = await GET(request);
 
     expect(k8sFetch).toHaveBeenCalledWith("/apis/apps/v1/namespaces/default/deployments");
     expect(response.status).toBe(200);

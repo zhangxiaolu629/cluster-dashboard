@@ -1,4 +1,4 @@
-const { spawn } = require("child_process");
+import { spawn } from "node:child_process";
 
 // 直接调用 next dev 命令
 const child = spawn(process.execPath, ["./node_modules/next/dist/bin/next", "dev", "-p", "3001"], {

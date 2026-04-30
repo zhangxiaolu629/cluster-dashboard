@@ -2,7 +2,7 @@
 
 import { Card, Alert, Spin, Button, Space, Select } from "antd";
 import { DownloadOutlined, CopyOutlined } from "@ant-design/icons";
-import { useState, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -14,21 +14,17 @@ interface DeploymentPreviewProps {
 }
 
 export default function DeploymentPreview({ yaml: yamlText }: DeploymentPreviewProps) {
-  const [formattedYaml, setFormattedYaml] = useState("");
   const [format, setFormat] = useState<"standard" | "compact">("standard");
-  const codeRef = useRef<any>(null);
-
-  useEffect(() => {
+  const formattedYaml = useMemo(() => {
     try {
       const parsed = JSON.parse(yamlText);
-      const formatted = yaml_lib.dump(parsed, {
+      return yaml_lib.dump(parsed, {
         indent: 2,
         lineWidth: format === "compact" ? 60 : -1,
         noRefs: true,
       });
-      setFormattedYaml(formatted);
     } catch {
-      setFormattedYaml(yamlText);
+      return yamlText;
     }
   }, [yamlText, format]);
 

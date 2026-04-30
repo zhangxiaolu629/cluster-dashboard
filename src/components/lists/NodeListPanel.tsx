@@ -11,6 +11,16 @@ type Node = {
   creationTimestamp: string;
 };
 
+type NodeResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      creationTimestamp?: string;
+    };
+  }>;
+};
+
 const columns: ColumnsType<Node> = [
   {
     title: "节点名称",
@@ -37,15 +47,17 @@ export default function NodeListPanel() {
       try {
         setLoading(true);
         const response = await fetch("/api/nodes");
-        const result = await response.json();
+        const result = (await response.json()) as NodeResponse;
 
         if (result.items) {
-          const mappedData: Node[] = result.items.map((item: any, index: number) => ({
+          const mappedData: Node[] = result.items.map((item, index: number) => ({
             key: item.metadata?.uid || `node-${index}`,
             name: item.metadata?.name || "",
             creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
           }));
           setData(mappedData);
+        } else {
+          setData([]);
         }
       } catch (error) {
         console.error("Failed to fetch nodes:", error);

@@ -21,6 +21,21 @@ interface ClusterSummaryProps {
   initialLoaded?: boolean;
 }
 
+type VolcClusterItem = {
+  Id?: string;
+  Name?: string;
+  CreateTime?: string;
+  Status?: {
+    Phase?: string;
+  };
+};
+
+type VolcClusterResponse = {
+  Result?: {
+    Items?: VolcClusterItem[];
+  };
+};
+
 export default function ClusterSummary({
   clusterId,
   initialClusterInfo = null,
@@ -43,11 +58,11 @@ export default function ClusterSummary({
           },
           body: JSON.stringify({}),
         });
-        const data = await response.json();
+        const data = (await response.json()) as VolcClusterResponse;
 
         if (data?.Result?.Items && data.Result.Items.length > 0) {
           const matchedCluster = clusterId
-            ? data.Result.Items.find((item: any) => item?.Id === clusterId) || data.Result.Items[0]
+            ? data.Result.Items.find((item) => item?.Id === clusterId) || data.Result.Items[0]
             : data.Result.Items[0];
           setClusterInfo({
             Id: matchedCluster.Id,

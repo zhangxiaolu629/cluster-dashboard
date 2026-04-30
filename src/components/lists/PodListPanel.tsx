@@ -11,6 +11,16 @@ type Pod = {
   creationTimestamp: string;
 };
 
+type PodResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      creationTimestamp?: string;
+    };
+  }>;
+};
+
 const columns: ColumnsType<Pod> = [
   {
     title: "Pod 名称",
@@ -37,15 +47,17 @@ export default function PodListPanel() {
       try {
         setLoading(true);
         const response = await fetch("/api/pods");
-        const result = await response.json();
+        const result = (await response.json()) as PodResponse;
 
         if (result.items) {
-          const mappedData: Pod[] = result.items.map((item: any, index: number) => ({
+          const mappedData: Pod[] = result.items.map((item, index: number) => ({
             key: item.metadata?.uid || `pod-${index}`,
             name: item.metadata?.name || "",
             creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
           }));
           setData(mappedData);
+        } else {
+          setData([]);
         }
       } catch (error) {
         console.error("Failed to fetch pods:", error);

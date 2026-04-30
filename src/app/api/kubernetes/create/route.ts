@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Service } from "@volcengine/openapi";
 import yaml from "js-yaml";
+import { z } from "zod";
 
 const PLURAL_KIND_MAP: Record<string, string> = {
   Endpoints: "endpoints",
@@ -42,6 +43,24 @@ interface ForwardApiResponse {
   };
 }
 
+const ALLOWED_KINDS = ["Namespace", "Service", "Deployment", "StatefulSet"] as const;
+
+const requestSchema = z.object({
+  yaml: z.string().min(1, "YAML 内容不能为空"),
+  namespace: z.string().trim().min(1).optional().default("default"),
+  ClusterId: z.string().trim().min(1, "ClusterId 不能为空"),
+});
+
+const manifestSchema = z.object({
+  apiVersion: z.string().trim().min(1, "apiVersion 不能为空"),
+  kind: z.enum(ALLOWED_KINDS, { message: "不支持的资源类型" }),
+  metadata: z.object({
+    name: z.string().trim().min(1, "metadata.name 不能为空"),
+    namespace: z.string().trim().min(1).optional(),
+  }),
+  spec: z.unknown().optional(),
+});
+
 function toResourceName(kind: string): string {
   if (PLURAL_KIND_MAP[kind]) {
     return PLURAL_KIND_MAP[kind];
@@ -71,12 +90,20 @@ function buildK8sPath(resource: KubernetesManifest, fallbackNamespace: string): 
 
 export async function POST(request: Request) {
   try {
-    const { yaml: yamlContent, namespace = "default", ClusterId } = await request.json();
+    const requestBody = requestSchema.safeParse(await request.json());
+    if (!requestBody.success) {
+      return NextResponse.json({ error: requestBody.error.flatten() }, { status: 400 });
+    }
+    const { yaml: yamlContent, namespace, ClusterId } = requestBody.data;
     const parsed = yaml.load(String(yamlContent));
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return NextResponse.json({ error: "YAML 内容无效或不是单个资源对象" }, { status: 400 });
     }
-    const manifest = parsed as KubernetesManifest;
+    const parsedManifest = manifestSchema.safeParse(parsed);
+    if (!parsedManifest.success) {
+      return NextResponse.json({ error: parsedManifest.error.flatten() }, { status: 400 });
+    }
+    const manifest = parsedManifest.data as KubernetesManifest;
 
     if (manifest.kind === "Deployment" && manifest.spec?.selector?.matchLabels) {
       if (!manifest.spec.template) {

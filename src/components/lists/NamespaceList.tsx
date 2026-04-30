@@ -42,6 +42,19 @@ interface NamespaceListProps {
   initialLoaded?: boolean;
 }
 
+type NamespaceResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      creationTimestamp?: string;
+    };
+    status?: {
+      phase?: string;
+    };
+  }>;
+};
+
 export default function NamespaceList({
   clusterId,
   initialData = [],
@@ -61,10 +74,10 @@ export default function NamespaceList({
       try {
         setLoading(true);
         const response = await fetch("/api/namespaces");
-        const result = await response.json();
+        const result = (await response.json()) as NamespaceResponse;
 
         if (result.items) {
-          const mappedData: NamespaceItem[] = result.items.map((item: any, index: number) => ({
+          const mappedData: NamespaceItem[] = result.items.map((item, index: number) => ({
             key: item.metadata?.uid || `ns-${index}`,
             name: item.metadata?.name || "",
             status: item.status?.phase || "Unknown",

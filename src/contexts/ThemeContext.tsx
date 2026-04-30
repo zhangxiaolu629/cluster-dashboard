@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { ConfigProvider } from "antd";
 import { themes, ThemeType } from "@/lib/theme";
 
@@ -18,19 +18,23 @@ const fallbackThemeContext: ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeType>("light");
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("antd-theme") as ThemeType;
-      if (saved && themes[saved]) {
-        setThemeState(saved);
-      }
-    } catch (error) {
-      console.error("Error reading theme from localStorage:", error);
+function getInitialTheme(): ThemeType {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+  try {
+    const saved = localStorage.getItem("antd-theme") as ThemeType;
+    if (saved && themes[saved]) {
+      return saved;
     }
-  }, []);
+  } catch (error) {
+    console.error("Error reading theme from localStorage:", error);
+  }
+  return "light";
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<ThemeType>(getInitialTheme);
 
   const setTheme = (newTheme: ThemeType) => {
     setThemeState(newTheme);

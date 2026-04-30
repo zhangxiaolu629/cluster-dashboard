@@ -267,7 +267,7 @@ export default function CreateDeploymentForm() {
   };
 
   const generateYaml = (data: DeploymentFormData): string => {
-    const deployment: any = {
+    const deployment: Record<string, unknown> = {
       apiVersion: "apps/v1",
       kind: "Deployment",
       metadata: {
@@ -319,7 +319,15 @@ export default function CreateDeploymentForm() {
       },
     };
 
-    const container = deployment.spec.template.spec.containers[0];
+    const deploymentSpec = deployment.spec as {
+      strategy: Record<string, unknown>;
+      template: {
+        spec: {
+          containers: Array<Record<string, unknown>>;
+        };
+      };
+    };
+    const container = deploymentSpec.template.spec.containers[0];
 
     if (data.command?.length) container.command = data.command;
     if (data.args?.length) container.args = data.args;
@@ -358,11 +366,12 @@ export default function CreateDeploymentForm() {
     }
 
     if (data.strategyType === "RollingUpdate" && (data.maxSurge || data.maxUnavailable)) {
-      deployment.spec.strategy.rollingUpdate = {};
+      deploymentSpec.strategy.rollingUpdate = {};
       if (data.maxSurge !== undefined)
-        deployment.spec.strategy.rollingUpdate.maxSurge = data.maxSurge;
+        (deploymentSpec.strategy.rollingUpdate as Record<string, unknown>).maxSurge = data.maxSurge;
       if (data.maxUnavailable !== undefined)
-        deployment.spec.strategy.rollingUpdate.maxUnavailable = data.maxUnavailable;
+        (deploymentSpec.strategy.rollingUpdate as Record<string, unknown>).maxUnavailable =
+          data.maxUnavailable;
     }
 
     const probes: Array<"livenessProbe" | "readinessProbe"> = [];
@@ -373,7 +382,7 @@ export default function CreateDeploymentForm() {
       const probe = data[probeType];
       if (!probe) return;
 
-      const probeConfig: any = {};
+      const probeConfig: Record<string, unknown> = {};
       probeConfig.initialDelaySeconds = probe.initialDelaySeconds || 0;
       probeConfig.periodSeconds = probe.periodSeconds || 10;
       probeConfig.timeoutSeconds = probe.timeoutSeconds || 1;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Row, Col, Tag, Button, message, Statistic, Skeleton, Typography } from "antd";
+import { Card, Row, Col, Button, message, Statistic, Skeleton, Typography } from "antd";
 import {
   CloudOutlined,
   CheckCircleOutlined,
@@ -9,7 +9,7 @@ import {
   PlusOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import ClusterCard from "./ClusterCard";
 
 const { Title, Text } = Typography;
@@ -29,27 +29,23 @@ interface Cluster {
   };
 }
 
-interface ClusterStats {
-  total: number;
-  running: number;
-  failed: number;
-  creating: number;
-}
-
 interface HomePageProps {
-  initialClusters?: any[];
+  initialClusters?: Cluster[];
   initialLoaded?: boolean;
 }
 
 export default function HomePage({ initialClusters = [], initialLoaded = false }: HomePageProps) {
   const [clusters, setClusters] = useState<Cluster[]>(initialClusters);
   const [loading, setLoading] = useState(!initialLoaded);
-  const [stats, setStats] = useState<ClusterStats>({
-    total: 0,
-    running: 0,
-    failed: 0,
-    creating: 0,
-  });
+  const stats = useMemo(() => {
+    return {
+      total: clusters.length,
+      running: clusters.filter((c) => c.Status.Phase === "Running").length,
+      failed: clusters.filter((c) => c.Status.Phase === "Failed").length,
+      creating: clusters.filter((c) => c.Status.Phase === "Creating").length,
+    };
+  }, [clusters]);
+
   useEffect(() => {
     if (!initialLoaded) {
       const fetchClusters = async () => {
@@ -66,7 +62,6 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
 
           if (data?.Result?.Items) {
             setClusters(data.Result.Items);
-            calculateStats(data.Result.Items);
           }
         } catch (error) {
           console.error("获取集群列表失败:", error);
@@ -76,28 +71,15 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
       };
 
       fetchClusters();
-    } else if (initialClusters.length > 0) {
-      calculateStats(initialClusters);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLoaded]);
-
-  const calculateStats = (items: Cluster[]) => {
-    const stats: ClusterStats = {
-      total: items.length,
-      running: items.filter((c) => c.Status.Phase === "Running").length,
-      failed: items.filter((c) => c.Status.Phase === "Failed").length,
-      creating: items.filter((c) => c.Status.Phase === "Creating").length,
-    };
-    setStats(stats);
-  };
 
   const handleCopyId = useCallback(async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await navigator.clipboard.writeText(id);
       message.success("集群ID已复制到剪贴板");
-    } catch (error) {
+    } catch {
       message.error("复制失败，请手动复制");
     }
   }, []);

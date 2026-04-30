@@ -5,7 +5,7 @@ import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import { useState, useEffect } from "react";
 
 export default function Step1BasicInfo() {
-  const { control, register, setValue } = useFormContext();
+  const { control, register } = useFormContext();
   const {
     fields: labelFields,
     append: appendLabel,
@@ -17,15 +17,22 @@ export default function Step1BasicInfo() {
     remove: removeAnnotation,
   } = useFieldArray({ control, name: "annotations" });
   const [namespaces, setNamespaces] = useState<string[]>([]);
+  type NamespaceResponse = {
+    items?: Array<{
+      metadata?: {
+        name?: string;
+      };
+    }>;
+  };
 
   useEffect(() => {
     const fetchNamespaces = async () => {
       try {
         const response = await fetch("/api/namespaces");
-        const result = await response.json();
+        const result = (await response.json()) as NamespaceResponse;
         if (result?.items && Array.isArray(result.items)) {
           const names = result.items
-            .map((item: any) => item?.metadata?.name)
+            .map((item) => item?.metadata?.name)
             .filter((name: unknown): name is string => Boolean(name));
           setNamespaces(names);
         }

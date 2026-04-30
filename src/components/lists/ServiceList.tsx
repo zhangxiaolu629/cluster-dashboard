@@ -21,6 +21,21 @@ interface ServiceListProps {
   initialLoaded?: boolean;
 }
 
+type ServiceResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      namespace?: string;
+      creationTimestamp?: string;
+    };
+    spec?: {
+      type?: string;
+      clusterIP?: string;
+    };
+  }>;
+};
+
 const typeColors: Record<string, string> = {
   ClusterIP: "blue",
   NodePort: "orange",
@@ -83,10 +98,10 @@ export default function ServiceList({
       try {
         setLoading(true);
         const response = await fetch("/api/services");
-        const result = await response.json();
+        const result = (await response.json()) as ServiceResponse;
 
         if (result.items) {
-          const mappedData: ServiceItem[] = result.items.map((item: any, index: number) => ({
+          const mappedData: ServiceItem[] = result.items.map((item, index: number) => ({
             key: item.metadata?.uid || `svc-${index}`,
             name: item.metadata?.name || "",
             namespace: item.metadata?.namespace || "",

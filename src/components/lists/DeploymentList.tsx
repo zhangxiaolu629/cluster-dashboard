@@ -30,6 +30,31 @@ interface DeploymentListProps {
   initialLoaded?: boolean;
 }
 
+type NamespaceResponse = {
+  items?: Array<{
+    metadata?: {
+      name?: string;
+    };
+  }>;
+};
+
+type DeploymentResponse = {
+  items?: Array<{
+    metadata?: {
+      uid?: string;
+      name?: string;
+      namespace?: string;
+      creationTimestamp?: string;
+    };
+    spec?: {
+      replicas?: number;
+    };
+    status?: {
+      readyReplicas?: number;
+    };
+  }>;
+};
+
 const getStatusIcon = (ready: number, total: number) => {
   if (total === 0) {
     return <ClockCircleOutlined />;
@@ -120,9 +145,11 @@ export default function DeploymentList({
     const fetchNamespaces = async () => {
       try {
         const response = await fetch("/api/namespaces");
-        const result = await response.json();
+        const result = (await response.json()) as NamespaceResponse;
         if (result.items) {
-          const names = result.items.map((item: any) => item.metadata?.name).filter(Boolean);
+          const names = result.items
+            .map((item) => item.metadata?.name)
+            .filter((name): name is string => Boolean(name));
           setNamespaces(names);
         } else {
           setNamespaces([]);
@@ -136,7 +163,6 @@ export default function DeploymentList({
 
   useEffect(() => {
     if (initialLoaded && !selectedNamespace) {
-      setLoading(false);
       return;
     }
     const fetchDeployments = async () => {
@@ -146,10 +172,10 @@ export default function DeploymentList({
           ? `/api/deployments?namespace=${selectedNamespace}`
           : "/api/deployments";
         const response = await fetch(url);
-        const result = await response.json();
+        const result = (await response.json()) as DeploymentResponse;
 
         if (result.items) {
-          const mappedData: DeploymentItem[] = result.items.map((item: any, index: number) => ({
+          const mappedData: DeploymentItem[] = result.items.map((item, index) => ({
             key: item.metadata?.uid || `deploy-${index}`,
             name: item.metadata?.name || "",
             namespace: item.metadata?.namespace || "",

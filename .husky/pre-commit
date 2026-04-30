@@ -1,2 +1,4 @@
+echo "Running formatter before commit..."
 npm run format
+git add -A
 npm test

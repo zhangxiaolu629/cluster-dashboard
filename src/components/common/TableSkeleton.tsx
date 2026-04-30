@@ -9,14 +9,16 @@ interface TableSkeletonProps {
 }
 
 export default function TableSkeleton({ columns = 5, rows = 5 }: TableSkeletonProps) {
-  const skeletonColumns: ColumnsType<any> = Array.from({ length: columns }).map((_, i) => ({
-    title: <Skeleton.Input style={{ width: 80 }} active />,
-    dataIndex: `col-${i}`,
-    key: `col-${i}`,
-    render: () => <Skeleton.Input style={{ width: 120 }} active />,
-  }));
+  const skeletonColumns: ColumnsType<Record<string, string>> = Array.from({ length: columns }).map(
+    (_, i) => ({
+      title: <Skeleton.Input style={{ width: 80 }} active />,
+      dataIndex: `col-${i}`,
+      key: `col-${i}`,
+      render: () => <Skeleton.Input style={{ width: 120 }} active />,
+    })
+  );
 
-  const skeletonData = Array.from({ length: rows }).map((_, i) => ({
+  const skeletonData: Record<string, string>[] = Array.from({ length: rows }).map((_, i) => ({
     key: `row-${i}`,
   }));
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Button, message, Space, Alert } from "antd";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CodeMirror from "@uiw/react-codemirror";
 import { yaml } from "@codemirror/lang-yaml";
@@ -37,21 +37,15 @@ export default function YamlCreate({ clusterId, initialYaml = "" }: YamlCreatePr
   const router = useRouter();
   const searchParams = useSearchParams();
   const kindParam = searchParams.get("kind");
-  const [yamlContent, setYamlContent] = useState(initialYaml);
+  const [yamlContent, setYamlContent] = useState(
+    kindParam === null ? initialYaml : getInitialYamlForKind(kindParam)
+  );
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [successDescription, setSuccessDescription] =
     useState("资源已成功创建，正在跳转到对应列表页");
   const [validationError, setValidationError] = useState<ValidationResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // 当 URL 没有 kind 参数时，保留服务端注入的 initialYaml，避免客户端 hydration 后被清空。
-    if (kindParam === null) {
-      return;
-    }
-    setYamlContent(getInitialYamlForKind(kindParam));
-  }, [kindParam]);
 
   const handleYamlChange = (value: string) => {
     setYamlContent(value);
@@ -111,8 +105,9 @@ export default function YamlCreate({ clusterId, initialYaml = "" }: YamlCreatePr
     try {
       yaml_lib.load(yamlStr);
       return { valid: true };
-    } catch (error: any) {
-      const { friendlyMessage } = parseYamlError(error.message || "YAML 格式不正确");
+    } catch (error: unknown) {
+      const messageText = error instanceof Error ? error.message : "YAML 格式不正确";
+      const { friendlyMessage } = parseYamlError(messageText);
       return { valid: false, error: friendlyMessage };
     }
   };
