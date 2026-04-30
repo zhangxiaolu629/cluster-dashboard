@@ -21,6 +21,10 @@ alwaysApply: true
 
 - 重要会话结束后，统一归档到 `docs/specstory/`
 
+## 任务管理规范
+
+- AI 在复杂任务开始前，默认先调用 `todo_write` 生成任务清单，再进入实现阶段
+
 ## 额外约定
 
 - 不要自动提交代码，只有在用户明确要求时才执行 `git commit`

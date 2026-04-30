@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Card, Tag, Spin, Select, Space } from "antd";
+import { Table, Card, Tag, Spin, Select, Space, Button, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
@@ -71,36 +71,38 @@ export default function EventList({ initialData = [], initialLoaded = false }: E
   const [resourceTypeFilter, setResourceTypeFilter] = useState<string | null>(null);
   const pageSize = 20;
 
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/events");
+      const result = await response.json();
+
+      if (result.items) {
+        const mappedData: EventItem[] = result.items.map((item: K8sEvent, index: number) => ({
+          key: item.metadata?.uid || `event-${index}`,
+          type: item.type || item.reason || "Normal",
+          resourceType: item.involvedObject?.kind || "",
+          resourceName: item.involvedObject?.name || "",
+          message: item.message || "",
+          creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
+        }));
+        setData(mappedData);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+      message.error("刷新事件列表失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (initialLoaded) {
       return;
     }
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/events");
-        const result = await response.json();
-
-        if (result.items) {
-          const mappedData: EventItem[] = result.items.map((item: K8sEvent, index: number) => ({
-            key: item.metadata?.uid || `event-${index}`,
-            type: item.type || item.reason || "Normal",
-            resourceType: item.involvedObject?.kind || "",
-            resourceName: item.involvedObject?.name || "",
-            message: item.message || "",
-            creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
-          }));
-          setData(mappedData);
-        } else {
-          setData([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch events:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEvents();
   }, [initialLoaded]);
 
@@ -121,6 +123,7 @@ export default function EventList({ initialData = [], initialLoaded = false }: E
     <div>
       <div style={{ marginBottom: 16, display: "flex", justifyContent: "flex-end" }}>
         <Space>
+          <Button onClick={fetchEvents}>刷新</Button>
           <span>筛选：</span>
           <Select
             placeholder="事件类型"

@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Card, Tag, Spin, Input } from "antd";
+import { Table, Card, Tag, Spin, Input, Button, Modal, Space, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect, useMemo } from "react";
 import AppLinkButton from "@/components/common/AppLinkButton";
@@ -34,6 +34,10 @@ type ServiceResponse = {
       clusterIP?: string;
     };
   }>;
+};
+
+type ResourceYamlResponse = {
+  yaml?: string;
 };
 
 const typeColors: Record<string, string> = {
@@ -89,45 +93,145 @@ export default function ServiceList({
   const [data, setData] = useState<ServiceItem[]>(initialData);
   const [loading, setLoading] = useState(!initialLoaded);
   const [searchText, setSearchText] = useState("");
+  const [yamlModalOpen, setYamlModalOpen] = useState(false);
+  const [yamlModalLoading, setYamlModalLoading] = useState(false);
+  const [yamlUpdating, setYamlUpdating] = useState(false);
+  const [editingYaml, setEditingYaml] = useState("");
+  const [editingResource, setEditingResource] = useState<{ name: string; namespace: string } | null>(
+    null
+  );
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/services");
+      const result = (await response.json()) as ServiceResponse;
+
+      if (result.items) {
+        const mappedData: ServiceItem[] = result.items.map((item, index: number) => ({
+          key: item.metadata?.uid || `svc-${index}`,
+          name: item.metadata?.name || "",
+          namespace: item.metadata?.namespace || "",
+          type: item.spec?.type || "ClusterIP",
+          clusterIP: item.spec?.clusterIP || "",
+          creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
+        }));
+        setData(mappedData);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+      message.error("刷新 Service 列表失败");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (initialLoaded) {
       return;
     }
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/services");
-        const result = (await response.json()) as ServiceResponse;
-
-        if (result.items) {
-          const mappedData: ServiceItem[] = result.items.map((item, index: number) => ({
-            key: item.metadata?.uid || `svc-${index}`,
-            name: item.metadata?.name || "",
-            namespace: item.metadata?.namespace || "",
-            type: item.spec?.type || "ClusterIP",
-            clusterIP: item.spec?.clusterIP || "",
-            creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
-          }));
-          setData(mappedData);
-        } else {
-          setData([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch services:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchServices();
   }, [initialLoaded]);
+
+  const handleDelete = (record: ServiceItem) => {
+    Modal.confirm({
+      title: "确认删除",
+      content: `确认删除 Service ${record.name} 吗？`,
+      okText: "确认删除",
+      okButtonProps: { danger: true },
+      cancelText: "取消",
+      onOk: async () => {
+        const query = new URLSearchParams({
+          kind: "Service",
+          name: record.name,
+          namespace: record.namespace,
+        });
+        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, { method: "DELETE" });
+        if (!res.ok) {
+          message.error("删除失败");
+          return;
+        }
+        message.success("删除成功");
+        fetchServices();
+      },
+    });
+  };
+
+  const openYamlModal = async (record: ServiceItem) => {
+    setYamlModalOpen(true);
+    setYamlModalLoading(true);
+    setEditingResource({ name: record.name, namespace: record.namespace });
+    try {
+      const query = new URLSearchParams({
+        kind: "Service",
+        name: record.name,
+        namespace: record.namespace,
+      });
+      const res = await fetch(`/api/kubernetes/resource?${query.toString()}`);
+      const result = (await res.json()) as ResourceYamlResponse;
+      setEditingYaml(result.yaml || "");
+    } catch (error) {
+      console.error("Failed to fetch service yaml:", error);
+      message.error("获取 YAML 失败");
+      setYamlModalOpen(false);
+    } finally {
+      setYamlModalLoading(false);
+    }
+  };
+
+  const handleYamlUpdate = async () => {
+    setYamlUpdating(true);
+    try {
+      const res = await fetch("/api/kubernetes/resource", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "Service",
+          yaml: editingYaml,
+        }),
+      });
+      if (!res.ok) {
+        message.error("YAML 更新失败");
+        return;
+      }
+      message.success("YAML 更新成功");
+      setYamlModalOpen(false);
+      fetchServices();
+    } catch (error) {
+      console.error("Failed to update service yaml:", error);
+      message.error("YAML 更新失败");
+    } finally {
+      setYamlUpdating(false);
+    }
+  };
 
   const filteredData = useMemo(() => {
     if (!searchText) return data;
     const lower = searchText.toLowerCase();
     return data.filter((svc) => svc.name.toLowerCase().includes(lower));
   }, [searchText, data]);
+
+  const tableColumns: ColumnsType<ServiceItem> = [
+    ...columns,
+    {
+      title: "操作",
+      key: "actions",
+      width: 220,
+      render: (_: unknown, record: ServiceItem) => (
+        <Space size="small">
+          <Button size="small" danger onClick={() => handleDelete(record)}>
+            删除
+          </Button>
+          <Button size="small" onClick={() => openYamlModal(record)}>
+            YAML更新
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -141,9 +245,12 @@ export default function ServiceList({
           marginBottom: 16,
         }}
       >
-        <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=Service`}>
-          YAML新建
-        </AppLinkButton>
+        <Space>
+          <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=Service`}>
+            YAML新建
+          </AppLinkButton>
+          <Button onClick={fetchServices}>刷新</Button>
+        </Space>
         <Input.Search
           placeholder="搜索Service名称..."
           allowClear
@@ -153,9 +260,28 @@ export default function ServiceList({
       </div>
       <Card size="small">
         <Spin spinning={loading}>
-          <Table columns={columns} dataSource={filteredData} pagination={false} rowKey="key" />
+          <Table columns={tableColumns} dataSource={filteredData} pagination={false} rowKey="key" />
         </Spin>
       </Card>
+      <Modal
+        title={
+          editingResource
+            ? `YAML更新 - ${editingResource.namespace}/${editingResource.name}`
+            : "YAML更新"
+        }
+        open={yamlModalOpen}
+        onCancel={() => setYamlModalOpen(false)}
+        onOk={handleYamlUpdate}
+        confirmLoading={yamlUpdating}
+        width={760}
+      >
+        <Input.TextArea
+          value={editingYaml}
+          onChange={(e) => setEditingYaml(e.target.value)}
+          autoSize={{ minRows: 16, maxRows: 24 }}
+          disabled={yamlModalLoading}
+        />
+      </Modal>
     </div>
   );
 }

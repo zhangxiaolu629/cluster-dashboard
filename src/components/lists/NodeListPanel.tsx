@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Card, Spin } from "antd";
+import { Table, Card, Spin, Button, Space, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
@@ -42,35 +42,42 @@ export default function NodeListPanel() {
   const [data, setData] = useState<Node[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchNodes = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/nodes");
-        const result = (await response.json()) as NodeResponse;
+  const fetchNodes = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/nodes");
+      const result = (await response.json()) as NodeResponse;
 
-        if (result.items) {
-          const mappedData: Node[] = result.items.map((item, index: number) => ({
-            key: item.metadata?.uid || `node-${index}`,
-            name: item.metadata?.name || "",
-            creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
-          }));
-          setData(mappedData);
-        } else {
-          setData([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch nodes:", error);
-      } finally {
-        setLoading(false);
+      if (result.items) {
+        const mappedData: Node[] = result.items.map((item, index: number) => ({
+          key: item.metadata?.uid || `node-${index}`,
+          name: item.metadata?.name || "",
+          creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
+        }));
+        setData(mappedData);
+      } else {
+        setData([]);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch nodes:", error);
+      message.error("刷新节点列表失败");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNodes();
   }, []);
 
   return (
     <Card size="small">
+      <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end" }}>
+        <Space>
+          <Button onClick={fetchNodes}>刷新</Button>
+        </Space>
+      </div>
       <Spin spinning={loading}>
         <Table columns={columns} dataSource={data} pagination={false} rowKey="key" />
       </Spin>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Card, Tag, Select, Space } from "antd";
+import { Table, Card, Tag, Select, Space, Button, Modal, Input, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   CheckCircleOutlined,
@@ -53,6 +53,10 @@ type DeploymentResponse = {
       readyReplicas?: number;
     };
   }>;
+};
+
+type ResourceYamlResponse = {
+  yaml?: string;
 };
 
 const getStatusIcon = (ready: number, total: number) => {
@@ -135,8 +139,43 @@ export default function DeploymentList({
   const [loading, setLoading] = useState(!initialLoaded);
   const [namespaces, setNamespaces] = useState<string[]>(initialNamespaces);
   const [selectedNamespace, setSelectedNamespace] = useState<string | null>(null);
+  const [yamlModalOpen, setYamlModalOpen] = useState(false);
+  const [yamlModalLoading, setYamlModalLoading] = useState(false);
+  const [yamlUpdating, setYamlUpdating] = useState(false);
+  const [editingYaml, setEditingYaml] = useState("");
+  const [editingResource, setEditingResource] = useState<{ name: string; namespace: string } | null>(
+    null
+  );
   const params = useParams();
   const clusterId = params.id as string;
+
+  const fetchDeployments = async (namespace?: string | null) => {
+    try {
+      setLoading(true);
+      const url = namespace ? `/api/deployments?namespace=${namespace}` : "/api/deployments";
+      const response = await fetch(url);
+      const result = (await response.json()) as DeploymentResponse;
+
+      if (result.items) {
+        const mappedData: DeploymentItem[] = result.items.map((item, index) => ({
+          key: item.metadata?.uid || `deploy-${index}`,
+          name: item.metadata?.name || "",
+          namespace: item.metadata?.namespace || "",
+          replicas: item.spec?.replicas || 0,
+          readyReplicas: item.status?.readyReplicas || 0,
+          creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
+        }));
+        setData(mappedData);
+      } else {
+        setData([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch deployments:", error);
+      message.error("刷新 Deployment 列表失败");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (initialLoaded && initialNamespaces.length > 0) {
@@ -165,37 +204,86 @@ export default function DeploymentList({
     if (initialLoaded && !selectedNamespace) {
       return;
     }
-    const fetchDeployments = async () => {
-      try {
-        setLoading(true);
-        const url = selectedNamespace
-          ? `/api/deployments?namespace=${selectedNamespace}`
-          : "/api/deployments";
-        const response = await fetch(url);
-        const result = (await response.json()) as DeploymentResponse;
-
-        if (result.items) {
-          const mappedData: DeploymentItem[] = result.items.map((item, index) => ({
-            key: item.metadata?.uid || `deploy-${index}`,
-            name: item.metadata?.name || "",
-            namespace: item.metadata?.namespace || "",
-            replicas: item.spec?.replicas || 0,
-            readyReplicas: item.status?.readyReplicas || 0,
-            creationTimestamp: item.metadata?.creationTimestamp || new Date().toISOString(),
-          }));
-          setData(mappedData);
-        } else {
-          setData([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch deployments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDeployments();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchDeployments(selectedNamespace);
   }, [initialLoaded, selectedNamespace]);
+
+  const handleRefresh = () => {
+    fetchDeployments(selectedNamespace);
+  };
+
+  const handleDelete = (record: DeploymentItem) => {
+    Modal.confirm({
+      title: "确认删除",
+      content: `确认删除 Deployment ${record.name} 吗？`,
+      okText: "确认删除",
+      okButtonProps: { danger: true },
+      cancelText: "取消",
+      onOk: async () => {
+        const query = new URLSearchParams({
+          kind: "Deployment",
+          name: record.name,
+          namespace: record.namespace,
+        });
+        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, { method: "DELETE" });
+        if (!res.ok) {
+          message.error("删除失败");
+          return;
+        }
+        message.success("删除成功");
+        fetchDeployments(selectedNamespace);
+      },
+    });
+  };
+
+  const openYamlModal = async (record: DeploymentItem) => {
+    setYamlModalOpen(true);
+    setYamlModalLoading(true);
+    setEditingResource({ name: record.name, namespace: record.namespace });
+    try {
+      const query = new URLSearchParams({
+        kind: "Deployment",
+        name: record.name,
+        namespace: record.namespace,
+      });
+      const res = await fetch(`/api/kubernetes/resource?${query.toString()}`);
+      const result = (await res.json()) as ResourceYamlResponse;
+      setEditingYaml(result.yaml || "");
+    } catch (error) {
+      console.error("Failed to fetch deployment yaml:", error);
+      message.error("获取 YAML 失败");
+      setYamlModalOpen(false);
+    } finally {
+      setYamlModalLoading(false);
+    }
+  };
+
+  const handleYamlUpdate = async () => {
+    if (!editingResource) return;
+    setYamlUpdating(true);
+    try {
+      const res = await fetch("/api/kubernetes/resource", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "Deployment",
+          yaml: editingYaml,
+        }),
+      });
+      if (!res.ok) {
+        message.error("YAML 更新失败");
+        return;
+      }
+      message.success("YAML 更新成功");
+      setYamlModalOpen(false);
+      fetchDeployments(selectedNamespace);
+    } catch (error) {
+      console.error("Failed to update deployment yaml:", error);
+      message.error("YAML 更新失败");
+    } finally {
+      setYamlUpdating(false);
+    }
+  };
 
   // 提取所有唯一的命名空间用于筛选
   const namespaceFilters = [...new Set(data.map((d) => d.namespace))].map((ns) => ({
@@ -210,6 +298,22 @@ export default function DeploymentList({
     }
     return col;
   });
+  const actionColumn: ColumnsType<DeploymentItem>[number] = {
+    title: "操作",
+    key: "actions",
+    width: 220,
+    render: (_: unknown, record: DeploymentItem) => (
+      <Space size="small">
+        <Button size="small" danger onClick={() => handleDelete(record)}>
+          删除
+        </Button>
+        <Button size="small" onClick={() => openYamlModal(record)}>
+          YAML更新
+        </Button>
+      </Space>
+    ),
+  };
+  const tableColumns = [...columnsWithFilters, actionColumn];
 
   return (
     <div>
@@ -230,14 +334,17 @@ export default function DeploymentList({
             YAML新建
           </AppLinkButton>
         </Space>
-        <Select
-          placeholder="选择命名空间"
-          allowClear
-          style={{ width: 180 }}
-          value={selectedNamespace}
-          onChange={(value) => setSelectedNamespace(value)}
-          options={namespaces.map((ns) => ({ value: ns, label: ns }))}
-        />
+        <Space>
+          <Button onClick={handleRefresh}>刷新</Button>
+          <Select
+            placeholder="选择命名空间"
+            allowClear
+            style={{ width: 180 }}
+            value={selectedNamespace}
+            onChange={(value) => setSelectedNamespace(value)}
+            options={namespaces.map((ns) => ({ value: ns, label: ns }))}
+          />
+        </Space>
       </div>
       <Card size="small">
         {loading ? (
@@ -253,9 +360,28 @@ export default function DeploymentList({
             }
           />
         ) : (
-          <Table columns={columnsWithFilters} dataSource={data} pagination={false} rowKey="key" />
+          <Table columns={tableColumns} dataSource={data} pagination={false} rowKey="key" />
         )}
       </Card>
+      <Modal
+        title={
+          editingResource
+            ? `YAML更新 - ${editingResource.namespace}/${editingResource.name}`
+            : "YAML更新"
+        }
+        open={yamlModalOpen}
+        onCancel={() => setYamlModalOpen(false)}
+        onOk={handleYamlUpdate}
+        confirmLoading={yamlUpdating}
+        width={760}
+      >
+        <Input.TextArea
+          value={editingYaml}
+          onChange={(e) => setEditingYaml(e.target.value)}
+          autoSize={{ minRows: 16, maxRows: 24 }}
+          disabled={yamlModalLoading}
+        />
+      </Modal>
     </div>
   );
 }
