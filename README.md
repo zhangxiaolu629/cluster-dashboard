@@ -71,6 +71,8 @@ npm run dev
 | `REGION`                 | 是（涉及火山接口时）  | 同上                                                                                                                             | 火山引擎 Region（如 `cn-beijing`）  | 与测试集群一致         | 与预览集群一致         | 与生产集群一致         |
 | `K8S_API_SERVER`         | 是（访问 K8s 资源时） | `src/lib/k8s.ts`（被 `src/app/api/*` 与部分页面调用）                                                                            | Kubernetes API Server 地址          | 指向测试集群 apiserver | 指向预览集群 apiserver | 指向生产集群 apiserver |
 | `K8S_TOKEN`              | 是（访问 K8s 资源时） | `src/lib/k8s.ts`                                                                                                                 | 访问 Kubernetes API 的 Bearer Token | 低权限测试 Token       | 低权限预览 Token       | 最小权限生产 Token     |
+| `OPENAI_API_KEY`         | 是（启用 AI 对话时）  | `src/app/api/ai/chat/route.ts`                                                                                                   | AI 模型服务鉴权密钥                 | 测试账号 Key           | 预览环境 Key           | 生产环境 Key           |
+| `AI_MODEL`               | 否                    | `src/app/api/ai/chat/route.ts`                                                                                                   | 指定对话模型（默认 `gpt-4o-mini`）  | 可留空                 | 按需配置               | 建议明确配置           |
 
 > 说明：
 >
@@ -85,6 +87,8 @@ VOLC_SECRET_ACCESS_KEY=your_sk
 REGION=cn-beijing
 K8S_API_SERVER=https://your-k8s-api-server
 K8S_TOKEN=your_k8s_bearer_token
+OPENAI_API_KEY=your_openai_api_key
+AI_MODEL=gpt-4o-mini
 ```
 
 ## 部署说明（Vercel）

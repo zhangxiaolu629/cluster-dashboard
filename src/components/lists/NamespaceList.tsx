@@ -120,7 +120,9 @@ export default function NamespaceList({
           kind: "Namespace",
           name: record.name,
         });
-        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, { method: "DELETE" });
+        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, {
+          method: "DELETE",
+        });
         if (!res.ok) {
           message.error("删除失败");
           return;
@@ -216,7 +218,10 @@ export default function NamespaceList({
         }}
       >
         <Space>
-          <AppLinkButton variant="primary" href={`/cluster/${clusterId}/yaml-create?kind=Namespace`}>
+          <AppLinkButton
+            variant="primary"
+            href={`/cluster/${clusterId}/yaml-create?kind=Namespace`}
+          >
             YAML新建
           </AppLinkButton>
           <Button onClick={fetchNamespaces}>刷新</Button>

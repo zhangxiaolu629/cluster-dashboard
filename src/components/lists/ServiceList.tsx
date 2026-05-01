@@ -97,9 +97,10 @@ export default function ServiceList({
   const [yamlModalLoading, setYamlModalLoading] = useState(false);
   const [yamlUpdating, setYamlUpdating] = useState(false);
   const [editingYaml, setEditingYaml] = useState("");
-  const [editingResource, setEditingResource] = useState<{ name: string; namespace: string } | null>(
-    null
-  );
+  const [editingResource, setEditingResource] = useState<{
+    name: string;
+    namespace: string;
+  } | null>(null);
 
   const fetchServices = async () => {
     try {
@@ -149,7 +150,9 @@ export default function ServiceList({
           name: record.name,
           namespace: record.namespace,
         });
-        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, { method: "DELETE" });
+        const res = await fetch(`/api/kubernetes/resource?${query.toString()}`, {
+          method: "DELETE",
+        });
         if (!res.ok) {
           message.error("删除失败");
           return;

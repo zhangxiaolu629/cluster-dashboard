@@ -33,7 +33,9 @@ const updateSchema = z.object({
 
 function buildResourcePath(kind: AllowedKind, name: string, namespace?: string): string {
   const meta = RESOURCE_META[kind];
-  const base = meta.apiVersion.includes("/") ? `/apis/${meta.apiVersion}` : `/api/${meta.apiVersion}`;
+  const base = meta.apiVersion.includes("/")
+    ? `/apis/${meta.apiVersion}`
+    : `/api/${meta.apiVersion}`;
 
   if (!meta.namespaced) {
     return `${base}/${meta.plural}/${name}`;

@@ -7,6 +7,7 @@ import {
   DeploymentUnitOutlined,
   FileAddOutlined,
   HomeOutlined,
+  MessageOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   NodeIndexOutlined,
@@ -30,7 +31,8 @@ type PageKey =
   | "service"
   | "deployment"
   | "statefulset"
-  | "yaml-create";
+  | "yaml-create"
+  | "ai-chat";
 
 interface PageLayoutProps {
   selectedKey: PageKey;
@@ -142,6 +144,15 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
                 </Link>
               ),
               icon: <NotificationOutlined />,
+            },
+            {
+              key: "ai-chat",
+              label: (
+                <Link href="/ai-chat" prefetch={false}>
+                  AI 对话
+                </Link>
+              ),
+              icon: <MessageOutlined />,
             },
           ]}
         />
