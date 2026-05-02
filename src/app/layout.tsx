@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import FloatingInfoDot from "@/components/common/FloatingInfoDot";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "K8s集群管理平台",
@@ -24,6 +25,7 @@ export default function RootLayout({
           <FloatingInfoDot />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
