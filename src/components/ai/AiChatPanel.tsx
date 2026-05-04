@@ -1,15 +1,80 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Button, Card, Input, Space, Typography, message } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
+import {
+  useEffect,
+  useRef,
+  useState,
+  isValidElement,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from "react";
+import { App, Button, Card, Input, Space, Typography } from "antd";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+import styles from "./AiChatPanel.module.css";
 
 const { Paragraph, Text } = Typography;
 const DRAFT_STORAGE_KEY = "ai-chat-draft";
 const EMPTY_ANSWER = "还没有回答，输入问题后点击发送。";
 
+function extractFenceLanguage(children: ReactNode): string {
+  if (!isValidElement(children)) {
+    return "";
+  }
+  const cls = (children.props as { className?: string }).className;
+  if (typeof cls === "string") {
+    const m = cls.match(/language-([\w-]+)/);
+    if (m) {
+      return m[1];
+    }
+  }
+  return "";
+}
+
+function MarkdownFencePre({ children, ...rest }: ComponentPropsWithoutRef<"pre">) {
+  const { message } = App.useApp();
+  const preRef = useRef<HTMLPreElement>(null);
+  const lang = extractFenceLanguage(children);
+
+  const handleCopyBlock = async () => {
+    const text = preRef.current?.textContent ?? "";
+    if (!text) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      message.success("代码已复制");
+    } catch (error) {
+      console.error("复制代码失败:", error);
+      message.error("复制失败，请手动选择复制");
+    }
+  };
+
+  return (
+    <div className={styles.codeBlockWrap}>
+      <div className={styles.codeBlockHeader}>
+        {lang ? <span className={styles.codeBlockLang}>{lang}</span> : <span aria-hidden />}
+        <Button
+          type="text"
+          size="small"
+          className={styles.codeBlockCopyBtn}
+          icon={<CopyOutlined />}
+          onClick={() => void handleCopyBlock()}
+        >
+          复制
+        </Button>
+      </div>
+      <pre ref={preRef} className={styles.codeBlockPre} {...rest}>
+        {children}
+      </pre>
+    </div>
+  );
+}
+
 export default function AiChatPanel() {
+  const { message } = App.useApp();
   const [input, setInput] = useState(() => {
     if (typeof window === "undefined") {
       return "";
@@ -43,8 +108,8 @@ export default function AiChatPanel() {
   };
 
   const handleSubmit = async () => {
-    const message = input.trim();
-    if (!message || isStreaming) return;
+    const userMessage = input.trim();
+    if (!userMessage || isStreaming) return;
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -56,7 +121,7 @@ export default function AiChatPanel() {
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message: userMessage }),
         signal: controller.signal,
       });
 
@@ -113,7 +178,7 @@ export default function AiChatPanel() {
 
   return (
     <Card size="small" title="AI 对话（MVP）">
-      <Space direction="vertical" size={12} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={12} style={{ width: "100%" }}>
         <Input.TextArea
           placeholder="请输入你的问题，例如：如何排查 Deployment 无法就绪？"
           autoSize={{ minRows: 4, maxRows: 8 }}
@@ -142,9 +207,15 @@ export default function AiChatPanel() {
         </Space>
         {errorText ? <Paragraph type="danger">请求失败：{errorText}</Paragraph> : null}
         <Card size="small" title="回答">
-          <div style={{ whiteSpace: "pre-wrap", marginBottom: 0 }}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{answerText}</ReactMarkdown>
-          </div>
+          {answerText === EMPTY_ANSWER ? (
+            <p className={styles.aiMarkdownPlaceholder}>{EMPTY_ANSWER}</p>
+          ) : (
+            <div className={styles.aiMarkdown}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ pre: MarkdownFencePre }}>
+                {answerText}
+              </ReactMarkdown>
+            </div>
+          )}
         </Card>
       </Space>
     </Card>

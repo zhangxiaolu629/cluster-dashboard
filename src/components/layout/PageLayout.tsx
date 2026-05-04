@@ -14,9 +14,11 @@ import {
   NotificationOutlined,
   PartitionOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu } from "antd";
+import { Button, Layout, Menu, Space, Typography } from "antd";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import AppLinkButton from "@/components/common/AppLinkButton";
 import ResponsiveContainer from "./ResponsiveContainer";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -43,6 +45,8 @@ interface PageLayoutProps {
 export default function PageLayout({ selectedKey, clusterId, children }: PageLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { theme } = useTheme();
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
   const isDark = theme === "dark";
 
   const getMenuPath = (key: PageKey): string => {
@@ -173,7 +177,27 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed((prev) => !prev)}
           />
-          <ThemeSwitcher />
+          <Space size="middle">
+            {session?.user?.name ? (
+              <Typography.Text type="secondary">{session.user.name}</Typography.Text>
+            ) : null}
+            <Button
+              type="link"
+              onClick={() =>
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/login");
+                      router.refresh();
+                    },
+                  },
+                })
+              }
+            >
+              退出登录
+            </Button>
+            <ThemeSwitcher />
+          </Space>
         </Header>
         <Content style={{ padding: "16px" }}>
           <ResponsiveContainer>{children}</ResponsiveContainer>

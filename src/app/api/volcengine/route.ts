@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { Service } from "@volcengine/openapi";
+import { assertAuthenticated } from "@/lib/require-session";
 
 export async function POST(request: Request) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   try {
     const body = await request.json();
 

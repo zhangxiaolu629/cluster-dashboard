@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Row, Col, Button, message, Statistic, Skeleton, Typography } from "antd";
+import { Card, Row, Col, Button, message, Statistic, Skeleton, Space, Typography } from "antd";
 import {
   CloudOutlined,
   CheckCircleOutlined,
@@ -111,28 +111,39 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
         >
           <Row gutter={[24, 32]} align="middle">
             <Col xs={24}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 16,
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)",
-                  }}
-                >
-                  <CloudOutlined style={{ fontSize: 32, color: "#fff" }} />
-                </div>
-                <div>
-                  <Title level={2} style={{ margin: 0, color: "#1a1a2e" }}>
-                    欢迎使用 K8s 集群管理平台
-                  </Title>
-                  <Text type="secondary" style={{ fontSize: 16 }}>
-                    轻松管理您的 Kubernetes 集群资源
-                  </Text>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 16,
+                  marginBottom: 16,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 16,
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)",
+                    }}
+                  >
+                    <CloudOutlined style={{ fontSize: 32, color: "#fff" }} />
+                  </div>
+                  <div>
+                    <Title level={2} style={{ margin: 0, color: "#1a1a2e" }}>
+                      欢迎使用 K8s 集群管理平台
+                    </Title>
+                    <Text type="secondary" style={{ fontSize: 16 }}>
+                      轻松管理您的 Kubernetes 集群资源
+                    </Text>
+                  </div>
                 </div>
               </div>
             </Col>
@@ -290,21 +301,23 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
             <Text type="secondary" style={{ display: "block", marginBottom: 24 }}>
               点击下方按钮创建您的第一个 Kubernetes 集群
             </Text>
-            <Button
-              type="primary"
-              size="large"
-              icon={<PlusOutlined />}
-              style={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                border: "none",
-                borderRadius: 12,
-                height: 48,
-                paddingInline: 32,
-                fontWeight: 500,
-              }}
-            >
-              创建集群
-            </Button>
+            <Space wrap size="middle" style={{ justifyContent: "center" }}>
+              <Button
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                style={{
+                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  border: "none",
+                  borderRadius: 12,
+                  height: 48,
+                  paddingInline: 32,
+                  fontWeight: 500,
+                }}
+              >
+                创建集群
+              </Button>
+            </Space>
             <div style={{ marginTop: 24 }}>
               <Button type="link" icon={<FileTextOutlined />}>
                 查看文档

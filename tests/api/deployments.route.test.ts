@@ -1,10 +1,15 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { GET } from "@/app/api/deployments/route";
-import { k8sFetch } from "@/lib/k8s";
+
+vi.mock("@/lib/require-session", () => ({
+  assertAuthenticated: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock("@/lib/k8s", () => ({
   k8sFetch: vi.fn(),
 }));
+
+import { GET } from "@/app/api/deployments/route";
+import { k8sFetch } from "@/lib/k8s";
 
 describe("GET /api/deployments", () => {
   beforeEach(() => {

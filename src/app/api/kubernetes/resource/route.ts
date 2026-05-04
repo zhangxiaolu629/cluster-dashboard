@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import yaml from "js-yaml";
 import { z } from "zod";
 import { k8sFetch } from "@/lib/k8s";
+import { assertAuthenticated } from "@/lib/require-session";
 
 const ALLOWED_KINDS = ["Namespace", "Service", "Deployment", "StatefulSet"] as const;
 type AllowedKind = (typeof ALLOWED_KINDS)[number];
@@ -54,6 +55,8 @@ function parseQuery(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   const parsed = parseQuery(request);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -67,6 +70,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   const parsed = parseQuery(request);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -79,6 +84,8 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   const payload = updateSchema.safeParse(await request.json());
   if (!payload.success) {
     return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });

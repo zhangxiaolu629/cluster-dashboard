@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Service } from "@volcengine/openapi";
 import yaml from "js-yaml";
 import { z } from "zod";
+import { assertAuthenticated } from "@/lib/require-session";
 
 const PLURAL_KIND_MAP: Record<string, string> = {
   Endpoints: "endpoints",
@@ -89,6 +90,8 @@ function buildK8sPath(resource: KubernetesManifest, fallbackNamespace: string): 
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   try {
     const requestBody = requestSchema.safeParse(await request.json());
     if (!requestBody.success) {

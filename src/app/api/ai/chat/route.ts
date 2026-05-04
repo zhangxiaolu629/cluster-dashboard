@@ -1,7 +1,8 @@
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { assertAuthenticated } from "@/lib/require-session";
 
 export const runtime = "nodejs";
 
@@ -32,6 +33,28 @@ function getClientIp(request: NextRequest): string {
   return request.headers.get("x-real-ip") || "unknown";
 }
 
+function resolveAiApiKey(): string | undefined {
+  const k =
+    process.env.AI_API_KEY?.trim() ||
+    process.env.ZHIPU_API_KEY?.trim() ||
+    process.env.BIGMODEL_API_KEY?.trim() ||
+    process.env.DEEPSEEK_API_KEY?.trim() ||
+    process.env.OPENAI_API_KEY?.trim();
+  return k || undefined;
+}
+
+function resolveAiBaseURL(): string | undefined {
+  const u = process.env.AI_BASE_URL?.trim();
+  return u || undefined;
+}
+
+function defaultChatModel(baseURL: string | undefined): string {
+  if (!baseURL) return "gpt-4o-mini";
+  if (baseURL.includes("bigmodel.cn")) return "glm-4.5-flash";
+  if (baseURL.includes("deepseek")) return "deepseek-chat";
+  return "gpt-4o-mini";
+}
+
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const store = getRateLimitStore();
@@ -47,6 +70,8 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   try {
     const ip = getClientIp(request);
     if (isRateLimited(ip)) {
@@ -58,11 +83,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: payload.error.flatten() }, { status: 400 });
     }
 
-    const model = process.env.AI_MODEL || "gpt-4o-mini";
-    const systemPrompt = "你是一个 Kubernetes 运维助手。回答要简洁、准确，优先给出可执行步骤。";
+    const apiKey = resolveAiApiKey();
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          error:
+            "未配置 AI 密钥：请设置 AI_API_KEY、ZHIPU_API_KEY、BIGMODEL_API_KEY、DEEPSEEK_API_KEY 或 OPENAI_API_KEY 之一",
+        },
+        { status: 503 }
+      );
+    }
+
+    const baseURL = resolveAiBaseURL();
+    const model = process.env.AI_MODEL?.trim() || defaultChatModel(baseURL);
+    const systemPrompt =
+      "你是一个 Kubernetes 运维助手。回答要简洁、准确，优先给出可执行步骤。请使用 Markdown 输出（适当使用分级标题、有序/无序列表、行内代码与围栏代码块展示命令与 YAML）。";
+
+    const openaiProvider = createOpenAI({
+      apiKey,
+      ...(baseURL ? { baseURL } : {}),
+    });
 
     const result = streamText({
-      model: openai(model),
+      model: openaiProvider.chat(model),
       system: systemPrompt,
       prompt: payload.data.message,
     });

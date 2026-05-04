@@ -37,10 +37,10 @@ export default function FloatingInfoDot() {
             火山引擎-容器服务
           </Typography.Title>
           <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
-            本项目依赖的 k8s 集群部署在火山引擎上面
+            本项目依赖的 k8s 集群部署在火山引擎-容器服务上面
           </Typography.Paragraph>
 
-          <Divider style={{ margin: "16px 0" }} />
+          {/* <Divider style={{ margin: "16px 0" }} />
 
           <Typography.Title level={5} style={{ marginTop: 0 }}>
             待实现功能
@@ -53,7 +53,7 @@ export default function FloatingInfoDot() {
                 {index + 1}）{item}
               </List.Item>
             )}
-          />
+          /> */}
         </Card>
       )}
 

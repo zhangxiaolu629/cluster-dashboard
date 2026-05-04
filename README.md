@@ -64,20 +64,36 @@ npm run dev
 
 ### 环境变量矩阵
 
-| 变量名                   | 必填                  | 使用位置                                                                                                                         | 用途                                | 本地开发               | Vercel 预览环境        | Vercel 生产环境        |
-| ------------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ---------------------- | ---------------------- | ---------------------- |
-| `VOLC_ACCESS_KEY_ID`     | 是（涉及火山接口时）  | `src/app/page.tsx`、`src/app/cluster/[id]/page.tsx`、`src/app/api/volcengine/route.ts`、`src/app/api/kubernetes/create/route.ts` | 火山引擎 OpenAPI 鉴权 AK            | 配置测试账号 AK        | 建议独立预览账号 AK    | 生产账号 AK            |
-| `VOLC_SECRET_ACCESS_KEY` | 是（涉及火山接口时）  | 同上                                                                                                                             | 火山引擎 OpenAPI 鉴权 SK            | 配置测试账号 SK        | 建议独立预览账号 SK    | 生产账号 SK            |
-| `REGION`                 | 是（涉及火山接口时）  | 同上                                                                                                                             | 火山引擎 Region（如 `cn-beijing`）  | 与测试集群一致         | 与预览集群一致         | 与生产集群一致         |
-| `K8S_API_SERVER`         | 是（访问 K8s 资源时） | `src/lib/k8s.ts`（被 `src/app/api/*` 与部分页面调用）                                                                            | Kubernetes API Server 地址          | 指向测试集群 apiserver | 指向预览集群 apiserver | 指向生产集群 apiserver |
-| `K8S_TOKEN`              | 是（访问 K8s 资源时） | `src/lib/k8s.ts`                                                                                                                 | 访问 Kubernetes API 的 Bearer Token | 低权限测试 Token       | 低权限预览 Token       | 最小权限生产 Token     |
-| `OPENAI_API_KEY`         | 是（启用 AI 对话时）  | `src/app/api/ai/chat/route.ts`                                                                                                   | AI 模型服务鉴权密钥                 | 测试账号 Key           | 预览环境 Key           | 生产环境 Key           |
-| `AI_MODEL`               | 否                    | `src/app/api/ai/chat/route.ts`                                                                                                   | 指定对话模型（默认 `gpt-4o-mini`）  | 可留空                 | 按需配置               | 建议明确配置           |
+| 变量名                   | 必填                           | 使用位置                                                                                                                         | 用途                                                                                             | 本地开发                | Vercel 预览环境              | Vercel 生产环境               |
+| ------------------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------- | ---------------------------- | ----------------------------- |
+| `VOLC_ACCESS_KEY_ID`     | 是（涉及火山接口时）           | `src/app/page.tsx`、`src/app/cluster/[id]/page.tsx`、`src/app/api/volcengine/route.ts`、`src/app/api/kubernetes/create/route.ts` | 火山引擎 OpenAPI 鉴权 AK                                                                         | 配置测试账号 AK         | 建议独立预览账号 AK          | 生产账号 AK                   |
+| `VOLC_SECRET_ACCESS_KEY` | 是（涉及火山接口时）           | 同上                                                                                                                             | 火山引擎 OpenAPI 鉴权 SK                                                                         | 配置测试账号 SK         | 建议独立预览账号 SK          | 生产账号 SK                   |
+| `REGION`                 | 是（涉及火山接口时）           | 同上                                                                                                                             | 火山引擎 Region（如 `cn-beijing`）                                                               | 与测试集群一致          | 与预览集群一致               | 与生产集群一致                |
+| `K8S_API_SERVER`         | 是（访问 K8s 资源时）          | `src/lib/k8s.ts`（被 `src/app/api/*` 与部分页面调用）                                                                            | Kubernetes API Server 地址                                                                       | 指向测试集群 apiserver  | 指向预览集群 apiserver       | 指向生产集群 apiserver        |
+| `K8S_TOKEN`              | 是（访问 K8s 资源时）          | `src/lib/k8s.ts`                                                                                                                 | 访问 Kubernetes API 的 Bearer Token                                                              | 低权限测试 Token        | 低权限预览 Token             | 最小权限生产 Token            |
+| `AI_API_KEY`             | 否（启用 AI 时与下行密钥择一） | `src/app/api/ai/chat/route.ts`                                                                                                   | 通用 OpenAI 兼容接口密钥（任意厂商 Key 均可放此变量）                                            | 国内/自建网关 Key       | 同上                         | 同上                          |
+| `ZHIPU_API_KEY`          | 否                             | 同上                                                                                                                             | 智谱开放平台 API Key                                                                             | open.bigmodel.cn 申请   | 同上                         | 同上                          |
+| `BIGMODEL_API_KEY`       | 否                             | 同上                                                                                                                             | 与 `ZHIPU_API_KEY` 同义别名                                                                      | 同上                    | 同上                         | 同上                          |
+| `DEEPSEEK_API_KEY`       | 否                             | 同上                                                                                                                             | DeepSeek 密钥（仍支持）                                                                          | 控制台申请              | 同上                         | 同上                          |
+| `OPENAI_API_KEY`         | 否                             | 同上                                                                                                                             | OpenAI 官方密钥                                                                                  | 官方 Key                | 同上                         | 同上                          |
+| `AI_BASE_URL`            | 否                             | `src/app/api/ai/chat/route.ts`                                                                                                   | OpenAI 兼容基址；智谱为 `https://open.bigmodel.cn/api/paas/v4`；留空则走 OpenAI 官方             | 按需                    | 按需                         | 按需                          |
+| `AI_MODEL`               | 否                             | `src/app/api/ai/chat/route.ts`                                                                                                   | 模型 ID；留空时：官方默认 `gpt-4o-mini`，智谱默认 `glm-4.5-flash`，DeepSeek 默认 `deepseek-chat` | 可留空                  | 按需配置                     | 建议明确配置                  |
+| `BETTER_AUTH_SECRET`     | 是（控制台登录）               | `src/lib/auth.ts`、`src/middleware.ts`（Cookie 校验）、`src/lib/require-session.ts`                                              | Better Auth 加密密钥，须 ≥32 字符                                                                | 本地随机生成            | Preview/Production 分别配置  | 生产强随机、勿与 Preview 共用 |
+| `BETTER_AUTH_URL`        | 是（公网部署）                 | `src/lib/auth.ts`                                                                                                                | 站点完整 URL（含 `https://`）                                                                    | `http://127.0.0.1:3001` | 预览域名                     | 生产自定义域                  |
+| `AUTH_USERS_JSON`        | 是（控制台登录，与下行择一）   | `src/lib/auth-seed.ts`                                                                                                           | 固定账号列表 JSON（仅 bcrypt 哈希）                                                              | 见下文；注意 `$` 展开   | 与生产隔离的测试账号         | 生产账号哈希                  |
+| `AUTH_USERS_JSON_FILE`   | 否                             | `src/lib/auth-seed.ts`                                                                                                           | 账号 JSON 文件路径（相对仓库根），优先于行内 JSON / Base64                                       | 推荐本地使用            | 可选                         | 可选                          |
+| `AUTH_USERS_JSON_BASE64` | 否                             | `src/lib/auth-seed.ts`                                                                                                           | 与 `AUTH_USERS_JSON` 相同内容经 **Base64** 编码，适合云端控制台不便写裸 `$` 时                   | 可选                    | **推荐**（免 `$` 插值问题）  | 可选                          |
+| `AUTH_DATABASE_PATH`     | 否                             | `src/lib/auth-sqlite.ts`                                                                                                         | SQLite 文件路径（默认 `.data/auth.sqlite`）                                                      | 默认即可                | 无持久盘时请改用托管 DB 方案 | 自管磁盘或托管数据库          |
 
 > 说明：
 >
 > - 当前代码中上述变量使用了非空断言（`!`）或启动即校验，缺失会导致请求失败或启动时报错。
+> - **AI 对话**：密钥按 `AI_API_KEY` → `ZHIPU_API_KEY` → `BIGMODEL_API_KEY` → `DEEPSEEK_API_KEY` → `OPENAI_API_KEY` 依次读取，至少配置其一才会启用流式对话。使用智谱、DeepSeek 等国内 OpenAI 兼容服务时，**必须**设置 `AI_BASE_URL`，否则仍会请求 OpenAI 官方；`AI_MODEL` 可省略（代码会按基址 URL 选择默认模型，见上表）。智谱 Flash 系列单价低且常有试用额度，具体计费以官网为准。
 > - `K8S_API_SERVER` 与 `K8S_TOKEN` 在 `src/lib/k8s.ts` 中是模块加载即检查，因此任何引用 `k8sFetch` 的服务端逻辑都会依赖这两个变量。
+> - 未登录用户无法访问 `/` 与 `/cluster/*` 等页面；所有业务 API 也会校验会话，请勿在浏览器外暴露 Cookie。
+> - 登录基于 **Better Auth** + 本地 **SQLite**（`AUTH_DATABASE_PATH` 默认可写目录 `.data/`）。Vercel 等无持久本地盘的 Serverless 环境需自行改为托管数据库（Postgres 等）并调整 `src/lib/auth.ts` 的数据库配置；当前仓库默认路径便于本地与自建机部署。
+> - 固定账号由 **`AUTH_USERS_JSON_FILE`（存在则最优先）**、**`AUTH_USERS_JSON_BASE64`** 或 **`AUTH_USERS_JSON`** 提供其一即可，为 JSON 数组，元素形如 `{"username":"alice","passwordHash":"$2b$..."}`。生成哈希（Node）：`node -e "const b=require('bcryptjs'); console.log(b.hashSync('你的密码',10))"`，勿把明文密码写入仓库或 Vercel 变量值。
+> - **重要**：Next.js 加载 `.env.local` 时会展开 `$变量名`。bcrypt 哈希里的 `$2b`、`$10` 等会被破坏，导致永远提示密码错误。可选：① `AUTH_USERS_JSON_FILE` 指向 JSON 文件（已忽略 `auth-users.local.json`）；② `.env.local` 里 `AUTH_USERS_JSON` 对每个 `$` 写成 `\$`；③ **线上控制台**：用 **`AUTH_USERS_JSON_BASE64`**（见下），避免裸 `$` 与 `\$` 在各平台行为不一致。
 
 ### 本地 `.env.local` 示例
 
@@ -87,9 +103,37 @@ VOLC_SECRET_ACCESS_KEY=your_sk
 REGION=cn-beijing
 K8S_API_SERVER=https://your-k8s-api-server
 K8S_TOKEN=your_k8s_bearer_token
+# OpenAI 官方（不设 AI_BASE_URL）
 OPENAI_API_KEY=your_openai_api_key
 AI_MODEL=gpt-4o-mini
+
+# 智谱 GLM（OpenAI 兼容，推荐 Flash 低成本）：须设置基址 + 其一密钥变量
+# AI_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+# ZHIPU_API_KEY=你的_api_key
+# AI_MODEL=glm-4.5-flash
+# DeepSeek 示例：AI_BASE_URL=https://api.deepseek.com/v1 ； DEEPSEEK_API_KEY=...
+# 须 ≥32 字符；勿用中文说明句当值（长度不够）。生成示例：openssl rand -base64 32
+BETTER_AUTH_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+BETTER_AUTH_URL=http://127.0.0.1:3001
+# 推荐：账号 JSON 单独文件，避免 .env 破坏 bcrypt 中的 $
+AUTH_USERS_JSON_FILE=auth-users.local.json
+# 若坚持用一行 JSON，须对哈希里每个 $ 转义为 \$
+# AUTH_USERS_JSON=[{"username":"admin","passwordHash":"\\$2b\\$10\\$……"}]
+#
+# 线上（Vercel 等）推荐 Base64，避免控制台对 $ 的插值/转义与本地不一致。生成（bash：单引号包住整段脚本，哈希用真实 60 字符替换占位）：
+# node -e 'const j=JSON.stringify([{username:"admin",passwordHash:"$2b$10$此处替换为node生成的完整哈希"}]); console.log(Buffer.from(j,"utf8").toString("base64"))'
+# AUTH_USERS_JSON_BASE64=（粘贴上面命令输出的整段 base64，勿换行）
 ```
+
+`auth-users.local.json` 示例（单行或多行均可，勿提交到 git）：
+
+```json
+[{ "username": "admin", "passwordHash": "$2b$10$此处粘贴 node 生成的完整 60 字符哈希" }]
+```
+
+> 未配置时，`next dev` 下会使用代码内本地占位密钥并打日志警告；`next build` / 生产环境仍必须在环境变量中提供 ≥32 字符的 `BETTER_AUTH_SECRET`。
+
+Playwright E2E 默认会由 `playwright.config.ts` 在拉起 dev 时注入测试账号（`e2e` / `e2e-test-pass`）。若使用 `PW_REUSE_DEV_SERVER=1` 复用本机已在跑的 dev，请在 `.env.local` 中配置相同的 `BETTER_AUTH_*` 与账号列表（`AUTH_USERS_JSON` / `AUTH_USERS_JSON_FILE` / `AUTH_USERS_JSON_BASE64` 之一）。
 
 ## 部署说明（Vercel）
 

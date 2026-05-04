@@ -2,6 +2,14 @@ import { test, expect } from "@playwright/test";
 
 /** 与路由 `/cluster/[id]/...` 配合；列表页不依赖该 ID 是否存在于 Volc 侧。 */
 const CLUSTER_ID = "e2e-mock-cluster";
+
+test.beforeEach(async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("用户名").fill("e2e");
+  await page.getByLabel("密码").fill("e2e-test-pass");
+  await page.getByRole("button", { name: /登录/ }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 60_000 });
+});
 const minimalNamespaceYaml = `apiVersion: v1
 kind: Namespace
 metadata:

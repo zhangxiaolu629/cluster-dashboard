@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "antd/dist/reset.css";
 import "./globals.css";
-import { ThemeProvider } from "@/contexts/ThemeContext";
+import ClientLayout from "@/components/layout/ClientLayout";
 import FloatingInfoDot from "@/components/common/FloatingInfoDot";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -20,10 +20,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full">
-        <ThemeProvider>
+        <ClientLayout>
           {children}
           <FloatingInfoDot />
-        </ThemeProvider>
+        </ClientLayout>
         <Analytics />
         <SpeedInsights />
       </body>

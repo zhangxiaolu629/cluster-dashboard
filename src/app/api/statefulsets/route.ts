@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { k8sFetch } from "@/lib/k8s";
+import { assertAuthenticated } from "@/lib/require-session";
 
 export async function GET(request: NextRequest) {
+  const unauthorized = await assertAuthenticated();
+  if (unauthorized) return unauthorized;
   try {
     const { searchParams } = new URL(request.url);
     const namespace = searchParams.get("namespace");

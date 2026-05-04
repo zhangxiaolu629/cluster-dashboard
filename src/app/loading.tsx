@@ -10,7 +10,7 @@ export default function RootLoading() {
         justifyContent: "center",
       }}
     >
-      <Spin size="large" tip="页面加载中..." />
+      <Spin size="large" description="页面加载中..." />
     </div>
   );
 }
