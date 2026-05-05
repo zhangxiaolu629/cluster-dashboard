@@ -20,10 +20,21 @@ const RESOURCE_META: Record<
   StatefulSet: { apiVersion: "apps/v1", plural: "statefulsets", namespaced: true },
 };
 
+const dnsSubdomainSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(253)
+  .regex(
+    /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/,
+    "必须是合法的 Kubernetes 资源名称"
+  )
+  .refine((value) => !value.includes(".."), "资源名称不能包含连续的点");
+
 const querySchema = z.object({
   kind: z.enum(ALLOWED_KINDS),
-  name: z.string().trim().min(1, "name 不能为空"),
-  namespace: z.string().trim().optional(),
+  name: dnsSubdomainSchema,
+  namespace: dnsSubdomainSchema.optional(),
 });
 
 const updateSchema = z.object({
@@ -31,17 +42,22 @@ const updateSchema = z.object({
   kind: z.enum(ALLOWED_KINDS),
 });
 
+function encodePathSegment(segment: string): string {
+  return encodeURIComponent(segment);
+}
+
 function buildResourcePath(kind: AllowedKind, name: string, namespace?: string): string {
   const meta = RESOURCE_META[kind];
   const base = meta.apiVersion.includes("/")
     ? `/apis/${meta.apiVersion}`
     : `/api/${meta.apiVersion}`;
+  const resourceName = encodePathSegment(name);
 
   if (!meta.namespaced) {
-    return `${base}/${meta.plural}/${name}`;
+    return `${base}/${meta.plural}/${resourceName}`;
   }
-  const ns = namespace || "default";
-  return `${base}/namespaces/${ns}/${meta.plural}/${name}`;
+  const ns = encodePathSegment(namespace || "default");
+  return `${base}/namespaces/${ns}/${meta.plural}/${resourceName}`;
 }
 
 function parseQuery(request: NextRequest) {
@@ -100,8 +116,17 @@ export async function PUT(request: NextRequest) {
   if (!manifest.metadata?.name) {
     return NextResponse.json({ error: "metadata.name 不能为空" }, { status: 400 });
   }
+  const parsedMetadata = z
+    .object({
+      name: dnsSubdomainSchema,
+      namespace: dnsSubdomainSchema.optional(),
+    })
+    .safeParse(manifest.metadata);
+  if (!parsedMetadata.success) {
+    return NextResponse.json({ error: parsedMetadata.error.flatten() }, { status: 400 });
+  }
 
-  const path = buildResourcePath(kind, manifest.metadata.name, manifest.metadata.namespace);
+  const path = buildResourcePath(kind, parsedMetadata.data.name, parsedMetadata.data.namespace);
   const data = await k8sFetch(path, {
     method: "PUT",
     body: JSON.stringify(parsedYaml),
