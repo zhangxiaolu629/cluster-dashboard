@@ -50,3 +50,4 @@ auth-users.local.json
 .cursor/rules
 .cursor/rules.bak-*
 .trae/rules
+.env*.local

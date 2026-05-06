@@ -21,6 +21,8 @@
 ## 环境与数据
 
 - 优先使用项目约定的测试环境变量，避免 E2E/接口直连生产集群与线上密钥。
+- **E2E / `npm run dev`**：登录依赖 Postgres，须在环境中配置 `AUTH_DATABASE_URL`（或 `DATABASE_URL` 等，见 `README.md`），与 Playwright `webServer` 注入的 `BETTER_AUTH_*` / `AUTH_USERS_JSON` 一并生效。
+- **GitHub Actions**：`lint-dev.yml` 的 build 步骤从仓库 Secret `AUTH_DATABASE_URL` 读取连接串（与 Neon CI 分支等一致），未配置时构建会失败。
 - 外部 K8s、Volcengine 在自动化中应以 mock、拦截或固定夹具（fixture）为主，降低偶发失败。
 
 ## 相关文档

@@ -10,13 +10,12 @@ export function ensureAuthDatabaseReady(): Promise<void> {
     runPromise = (async () => {
       const { auth } = await import("@/lib/auth");
       const { getMigrations } = await import("better-auth/db/migration");
-      const { getAuthDatabase } = await import("@/lib/auth-sqlite");
-      const { syncFixedUsersFromEnv } = await import("@/lib/auth-seed");
+      const { getPostgresPool } = await import("@/lib/auth-postgres");
+      const { syncFixedUsersToPostgres } = await import("@/lib/auth-seed-postgres");
 
-      getAuthDatabase();
       const { runMigrations } = await getMigrations(auth.options);
       await runMigrations();
-      syncFixedUsersFromEnv(getAuthDatabase());
+      await syncFixedUsersToPostgres(getPostgresPool());
       ran = true;
     })().finally(() => {
       if (!ran) {
