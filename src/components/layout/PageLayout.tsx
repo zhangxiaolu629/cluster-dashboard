@@ -33,8 +33,7 @@ type PageKey =
   | "service"
   | "deployment"
   | "statefulset"
-  | "yaml-create"
-  | "ai-chat";
+  | "yaml-create";
 
 interface PageLayoutProps {
   selectedKey: PageKey;
@@ -149,15 +148,6 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
               ),
               icon: <NotificationOutlined />,
             },
-            {
-              key: "ai-chat",
-              label: (
-                <Link href="/ai-chat" prefetch={false}>
-                  AI 对话
-                </Link>
-              ),
-              icon: <MessageOutlined />,
-            },
           ]}
         />
       </Sider>
@@ -178,6 +168,12 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
             onClick={() => setCollapsed((prev) => !prev)}
           />
           <Space size="middle">
+            <Link href="/ai-chat" prefetch={false}>
+              <Button type="text" icon={<MessageOutlined />}>
+                AI 对话
+              </Button>
+            </Link>
+            <ThemeSwitcher />
             {session?.user?.name ? (
               <Typography.Text type="secondary">{session.user.name}</Typography.Text>
             ) : null}
@@ -194,9 +190,8 @@ export default function PageLayout({ selectedKey, clusterId, children }: PageLay
                 })
               }
             >
-              退出登录
+              登出
             </Button>
-            <ThemeSwitcher />
           </Space>
         </Header>
         <Content style={{ padding: "16px" }}>

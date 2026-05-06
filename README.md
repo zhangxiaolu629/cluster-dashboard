@@ -86,7 +86,7 @@ npm run dev
 | `AUTH_DATABASE_URL`           | 是（控制台登录）               | `src/lib/auth-postgres.ts`、`src/lib/auth.ts`                                                                                    | **Postgres** 连接串（Better Auth + Kysely + `pg`）；未设时依次尝试 `POSTGRES_PRISMA_URL`、`POSTGRES_URL`、`DATABASE_URL`（Neon 见下文） | Neon（推荐）/ RDS 等    | 与托管库一致                | 与托管库一致                  |
 | `BETTER_AUTH_TRUSTED_ORIGINS` | 否                             | `src/lib/auth.ts`                                                                                                                | 额外信任的 Origin（逗号/空格分隔），自定义域与预览域不一致时可配                                                                        | 可留空                  | 按需                        | 多域时建议配置                |
 
-> 说明：
+<!-- > 说明：
 >
 > - 当前代码中上述变量使用了非空断言（`!`）或启动即校验，缺失会导致请求失败或启动时报错。
 > - **AI 对话**：密钥按 `AI_API_KEY` → `ZHIPU_API_KEY` → `BIGMODEL_API_KEY` → `DEEPSEEK_API_KEY` → `OPENAI_API_KEY` 依次读取，至少配置其一才会启用流式对话。使用智谱、DeepSeek 等国内 OpenAI 兼容服务时，**必须**设置 `AI_BASE_URL`，否则仍会请求 OpenAI 官方；`AI_MODEL` 可省略（代码会按基址 URL 选择默认模型，见上表）。智谱 Flash 系列单价低且常有试用额度，具体计费以官网为准。
@@ -94,9 +94,9 @@ npm run dev
 > - 未登录用户无法访问 `/` 与 `/cluster/*` 等页面；所有业务 API 也会校验会话，请勿在浏览器外暴露 Cookie。
 > - **登录仅使用 Postgres**（`src/lib/auth.ts` + `src/lib/auth-postgres.ts`）：须配置 `AUTH_DATABASE_URL` 或回退变量之一（见上表）。本地与线上推荐 [Neon](https://neon.tech) 等托管库；GitHub Actions 的 `npm run build` 须在仓库 **Actions secrets** 中配置 `AUTH_DATABASE_URL`（可与 Neon 上专用于 CI 的分支库一致），见 `.github/workflows/lint-dev.yml`。
 > - 固定账号由 **`AUTH_USERS_JSON_FILE`（存在则最优先）**、**`AUTH_USERS_JSON_BASE64`** 或 **`AUTH_USERS_JSON`** 提供其一即可，为 JSON 数组，元素形如 `{"username":"alice","passwordHash":"$2b$..."}`。生成哈希（Node）：`node -e "const b=require('bcryptjs'); console.log(b.hashSync('你的密码',10))"`，勿把明文密码写入仓库或 Vercel 变量值。
-> - **重要**：Next.js 加载 `.env.local` 时会展开 `$变量名`。bcrypt 哈希里的 `$2b`、`$10` 等会被破坏，导致永远提示密码错误。可选：① `AUTH_USERS_JSON_FILE` 指向 JSON 文件（已忽略 `auth-users.local.json`）；② `.env.local` 里 `AUTH_USERS_JSON` 对每个 `$` 写成 `\$`；③ **线上控制台**：用 **`AUTH_USERS_JSON_BASE64`**（见下），避免裸 `$` 与 `\$` 在各平台行为不一致。
+> - **重要**：Next.js 加载 `.env.local` 时会展开 `$变量名`。bcrypt 哈希里的 `$2b`、`$10` 等会被破坏，导致永远提示密码错误。可选：① `AUTH_USERS_JSON_FILE` 指向 JSON 文件（已忽略 `auth-users.local.json`）；② `.env.local` 里 `AUTH_USERS_JSON` 对每个 `$` 写成 `\$`；③ **线上控制台**：用 **`AUTH_USERS_JSON_BASE64`**（见下），避免裸 `$` 与 `\$` 在各平台行为不一致。 -->
 
-### 本地 `.env.local` 示例
+<!-- ### 本地 `.env.local` 示例
 
 ```bash
 VOLC_ACCESS_KEY_ID=your_ak
@@ -158,7 +158,7 @@ Neon 文档中的典型流程是：`vercel env pull .env.development.local` → 
 | 拉取环境变量               | 可同样执行 `vercel env pull .env.development.local`（或 `.env.local`），确保本地有 `DATABASE_URL` / `POSTGRES_PRISMA_URL` 等；Next 会按 [官方说明](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables) 加载。                                                                                     |
 | `@neondatabase/serverless` | **登录（Better Auth）不依赖该包**：`src/lib/auth-postgres.ts` 使用 **`pg` + Kysely**，只要连接串是标准 Postgres（含 Neon 的 pooled URL）即可。若你要**另外**写业务表（如教程里的 `comments`）的 Server Action，可单独 `npm install @neondatabase/serverless` 并在那些模块里使用 `neon()`，与认证库可以共用同一个 Neon 项目里的不同表。 |
 | 在控制台建表               | 认证相关表由 **Better Auth 迁移**自动创建，无需手抄教程里的 `CREATE TABLE`。业务表仍可在 Neon SQL Editor 中自行执行 DDL。                                                                                                                                                                                                              |
-| `DATABASE_URL`             | 已在 `resolvePostgresConnectionString()` 中作为回退读取；与教程示例一致。更稳妥时可另设 `AUTH_DATABASE_URL` 指向同一串或专用分支库。                                                                                                                                                                                                   |
+| `DATABASE_URL`             | 已在 `resolvePostgresConnectionString()` 中作为回退读取；与教程示例一致。更稳妥时可另设 `AUTH_DATABASE_URL` 指向同一串或专用分支库。                                                                                                                                                                                                   | -->
 
 ## 部署说明（Vercel）
 

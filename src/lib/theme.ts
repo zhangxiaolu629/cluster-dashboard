@@ -3,6 +3,15 @@ import type { ThemeConfig } from "antd";
 
 export type ThemeType = "light" | "dark" | "compact" | "cartoon" | "illustration";
 
+/** 界面风格下拉等处的展示文案（与 ThemeType 一一对应） */
+export const THEME_LABELS: Record<ThemeType, string> = {
+  light: "浅色",
+  dark: "深色",
+  compact: "紧凑",
+  cartoon: "卡通圆角",
+  illustration: "插画风",
+};
+
 export const themes: Record<ThemeType, ThemeConfig> = {
   light: {
     algorithm: theme.defaultAlgorithm,

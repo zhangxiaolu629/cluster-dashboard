@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ClusterCard from "./ClusterCard";
+import HomeTopBar from "@/components/layout/HomeTopBar";
 
 const { Title, Text } = Typography;
 
@@ -99,7 +100,8 @@ export default function HomePage({ initialClusters = [], initialLoaded = false }
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       }}
     >
-      <div style={{ padding: "48px 24px 24px" }}>
+      <HomeTopBar />
+      <div style={{ padding: "24px 24px 24px" }}>
         <div
           style={{
             background: "rgba(255, 255, 255, 0.95)",

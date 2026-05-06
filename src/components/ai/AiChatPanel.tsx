@@ -177,7 +177,17 @@ export default function AiChatPanel() {
   };
 
   return (
-    <Card size="small" title="AI 对话（MVP）">
+    <Card
+      size="small"
+      title={
+        <span style={{ display: "inline-flex", flexWrap: "wrap", alignItems: "baseline", gap: 8 }}>
+          <span>AI 对话（MVP）</span>
+          <Text type="secondary" style={{ fontSize: 12, fontWeight: 400 }}>
+            调用智普AI大模型服务，目前使用版本是glm-4.5-flash
+          </Text>
+        </span>
+      }
+    >
       <Space orientation="vertical" size={12} style={{ width: "100%" }}>
         <Input.TextArea
           placeholder="请输入你的问题，例如：如何排查 Deployment 无法就绪？"
