@@ -29,9 +29,9 @@ describe("protected server pages", () => {
   it("does not prefetch Kubernetes data when page session validation fails", async () => {
     vi.mocked(requireAuthenticatedPage).mockRejectedValueOnce(new Error("NEXT_REDIRECT"));
 
-    await expect(
-      DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    await expect(DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
 
     expect(k8sFetch).not.toHaveBeenCalled();
   });
