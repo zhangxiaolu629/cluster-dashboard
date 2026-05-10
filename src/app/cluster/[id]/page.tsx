@@ -3,6 +3,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import ClusterSummary from "@/components/cluster/ClusterSummary";
 import ClusterTabs from "@/components/cluster/ClusterTabs";
 import { Service } from "@volcengine/openapi";
+import { requireAuthenticatedPage } from "@/lib/require-session";
 
 type VolcCluster = {
   Id: string;
@@ -32,6 +33,8 @@ type ListClustersResponse = {
 
 export default async function ClusterDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage();
+
   let initialClusterInfo: ClusterInfo | null = null;
 
   try {

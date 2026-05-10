@@ -1,5 +1,6 @@
 import HomePage from "@/components/cluster/HomePage";
 import { Service } from "@volcengine/openapi";
+import { requireAuthenticatedPage } from "@/lib/require-session";
 
 type VolcCluster = {
   Id: string;
@@ -17,6 +18,8 @@ type ListClustersResponse = {
 };
 
 export default async function Home() {
+  await requireAuthenticatedPage();
+
   let initialClusters: VolcCluster[] = [];
 
   try {

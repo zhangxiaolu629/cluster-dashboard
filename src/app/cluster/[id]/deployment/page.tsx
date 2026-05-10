@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layout/PageLayout";
 import DeploymentList, { DeploymentItem } from "@/components/lists/DeploymentList";
 import { k8sFetch } from "@/lib/k8s";
+import { requireAuthenticatedPage } from "@/lib/require-session";
 
 type NamespaceResponse = {
   items?: Array<{
@@ -29,6 +30,8 @@ type DeploymentResponse = {
 
 export default async function DeploymentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage();
+
   let initialData: DeploymentItem[] = [];
   let initialNamespaces: string[] = [];
 

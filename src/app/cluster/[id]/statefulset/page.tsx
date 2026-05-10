@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layout/PageLayout";
 import StatefulSetList, { StatefulSetItem } from "@/components/lists/StatefulSetList";
 import { k8sFetch } from "@/lib/k8s";
+import { requireAuthenticatedPage } from "@/lib/require-session";
 
 type NamespaceResponse = {
   items?: Array<{
@@ -29,6 +30,8 @@ type StatefulSetResponse = {
 
 export default async function StatefulSetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage();
+
   let initialData: StatefulSetItem[] = [];
   let initialNamespaces: string[] = [];
 
