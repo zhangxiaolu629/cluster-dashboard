@@ -3,6 +3,8 @@ import NamespaceList, { NamespaceItem } from "@/components/lists/NamespaceList";
 import { k8sFetch } from "@/lib/k8s";
 import { requirePageSession } from "@/lib/require-page-session";
 
+export const dynamic = "force-dynamic";
+
 type NamespaceResponse = {
   items?: Array<{
     metadata?: {

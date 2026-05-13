@@ -5,6 +5,8 @@ import ClusterTabs from "@/components/cluster/ClusterTabs";
 import { Service } from "@volcengine/openapi";
 import { requirePageSession } from "@/lib/require-page-session";
 
+export const dynamic = "force-dynamic";
+
 type VolcCluster = {
   Id: string;
   Name: string;

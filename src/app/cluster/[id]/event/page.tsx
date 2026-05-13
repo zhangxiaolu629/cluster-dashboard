@@ -4,6 +4,8 @@ import { k8sFetch } from "@/lib/k8s";
 import { requirePageSession } from "@/lib/require-page-session";
 import type { K8sEvent } from "@/types/k8s";
 
+export const dynamic = "force-dynamic";
+
 type EventResponse = {
   items?: K8sEvent[];
 };
