@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import YamlCreate from "@/components/forms/YamlCreate";
 import { getInitialYamlForKind } from "@/lib/k8sYamlTemplates";
+import { requirePageSession } from "@/lib/require-page-session";
 
 export default async function YamlCreatePage({
   params,
@@ -12,6 +13,9 @@ export default async function YamlCreatePage({
 }) {
   const { id } = await params;
   const { kind } = await searchParams;
+  const query = kind ? `?${new URLSearchParams({ kind }).toString()}` : "";
+  await requirePageSession(`/cluster/${id}/yaml-create${query}`);
+
   const initialYaml = getInitialYamlForKind(kind);
 
   return (
