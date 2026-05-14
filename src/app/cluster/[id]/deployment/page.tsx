@@ -1,6 +1,9 @@
 import PageLayout from "@/components/layout/PageLayout";
 import DeploymentList, { DeploymentItem } from "@/components/lists/DeploymentList";
 import { k8sFetch } from "@/lib/k8s";
+import { requirePageSession } from "@/lib/require-page-session";
+
+export const dynamic = "force-dynamic";
 
 type NamespaceResponse = {
   items?: Array<{
@@ -29,6 +32,8 @@ type DeploymentResponse = {
 
 export default async function DeploymentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requirePageSession(`/cluster/${encodeURIComponent(id)}/deployment`);
+
   let initialData: DeploymentItem[] = [];
   let initialNamespaces: string[] = [];
 
