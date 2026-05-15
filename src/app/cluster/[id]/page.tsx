@@ -3,6 +3,9 @@ import PageLayout from "@/components/layout/PageLayout";
 import ClusterSummary from "@/components/cluster/ClusterSummary";
 import ClusterTabs from "@/components/cluster/ClusterTabs";
 import { Service } from "@volcengine/openapi";
+import { requirePageSession } from "@/lib/require-page-session";
+
+export const dynamic = "force-dynamic";
 
 type VolcCluster = {
   Id: string;
@@ -32,6 +35,8 @@ type ListClustersResponse = {
 
 export default async function ClusterDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requirePageSession(`/cluster/${id}`);
+
   let initialClusterInfo: ClusterInfo | null = null;
 
   try {
