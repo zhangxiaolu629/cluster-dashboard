@@ -3,7 +3,9 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 const mocks = vi.hoisted(() => {
   const listClustersApi = vi.fn();
   const createJSONAPI = vi.fn(() => listClustersApi);
-  const Service = vi.fn(() => ({ createJSONAPI }));
+  const Service = vi.fn(function () {
+    return { createJSONAPI };
+  });
   return {
     requirePageSession: vi.fn(),
     k8sFetch: vi.fn(),
@@ -57,9 +59,9 @@ describe("protected server pages", () => {
   it("does not fetch Kubernetes resources when page session validation fails", async () => {
     mocks.requirePageSession.mockRejectedValueOnce(new Error("NEXT_REDIRECT"));
 
-    await expect(
-      DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })
-    ).rejects.toThrow("NEXT_REDIRECT");
+    await expect(DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })).rejects.toThrow(
+      "NEXT_REDIRECT"
+    );
 
     expect(mocks.requirePageSession).toHaveBeenCalledWith("/cluster/cluster-1/deployment");
     expect(mocks.k8sFetch).not.toHaveBeenCalled();
