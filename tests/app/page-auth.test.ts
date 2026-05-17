@@ -60,10 +60,7 @@ describe("protected server pages", () => {
     ["namespace list", () => NamespacePage({ params: params() })],
     ["service list", () => ServicePage({ params: params() })],
     ["statefulset list", () => StatefulSetPage({ params: params() })],
-    [
-      "yaml create",
-      () => YamlCreatePage({ params: params(), searchParams: searchParams() }),
-    ],
+    ["yaml create", () => YamlCreatePage({ params: params(), searchParams: searchParams() })],
   ])("%s verifies the real session before rendering", async (_name, renderPage) => {
     await renderPage();
 
