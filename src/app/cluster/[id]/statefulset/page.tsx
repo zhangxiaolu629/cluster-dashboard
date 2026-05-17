@@ -1,6 +1,9 @@
 import PageLayout from "@/components/layout/PageLayout";
 import StatefulSetList, { StatefulSetItem } from "@/components/lists/StatefulSetList";
 import { k8sFetch } from "@/lib/k8s";
+import { requirePageSession } from "@/lib/require-page-session";
+
+export const dynamic = "force-dynamic";
 
 type NamespaceResponse = {
   items?: Array<{
@@ -28,6 +31,8 @@ type StatefulSetResponse = {
 };
 
 export default async function StatefulSetPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePageSession();
+
   const { id } = await params;
   let initialData: StatefulSetItem[] = [];
   let initialNamespaces: string[] = [];
