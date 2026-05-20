@@ -9,9 +9,10 @@ function buildLoginPath(callbackUrl: string) {
 }
 
 export async function requirePageSession(callbackUrl: string) {
+  const requestHeaders = await headers();
   await ensureAuthDatabaseReady();
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: requestHeaders,
   });
 
   if (!session?.user) {

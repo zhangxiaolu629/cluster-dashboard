@@ -52,8 +52,6 @@ describe("requirePageSession", () => {
       "redirect:/login?callbackUrl=%2Fcluster%2Fcluster-1%2Fdeployment"
     );
 
-    expect(redirect).toHaveBeenCalledWith(
-      "/login?callbackUrl=%2Fcluster%2Fcluster-1%2Fdeployment"
-    );
+    expect(redirect).toHaveBeenCalledWith("/login?callbackUrl=%2Fcluster%2Fcluster-1%2Fdeployment");
   });
 });
