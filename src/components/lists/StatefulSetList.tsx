@@ -208,6 +208,7 @@ export default function StatefulSetList({
   const openYamlModal = async (record: StatefulSetItem) => {
     setYamlModalOpen(true);
     setYamlModalLoading(true);
+    setEditingYaml("");
     setEditingResource({ name: record.name, namespace: record.namespace });
     try {
       const query = new URLSearchParams({
@@ -228,6 +229,7 @@ export default function StatefulSetList({
   };
 
   const handleYamlUpdate = async () => {
+    if (!editingResource) return;
     setYamlUpdating(true);
     try {
       const res = await fetch("/api/kubernetes/resource", {
@@ -235,6 +237,8 @@ export default function StatefulSetList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind: "StatefulSet",
+          name: editingResource.name,
+          namespace: editingResource.namespace,
           yaml: editingYaml,
         }),
       });
@@ -315,6 +319,7 @@ export default function StatefulSetList({
         onCancel={() => setYamlModalOpen(false)}
         onOk={handleYamlUpdate}
         confirmLoading={yamlUpdating}
+        okButtonProps={{ disabled: yamlModalLoading || !editingYaml.trim() }}
         width={760}
       >
         <Input.TextArea

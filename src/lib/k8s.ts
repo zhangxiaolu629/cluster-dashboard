@@ -21,10 +21,11 @@ export async function k8sFetch(path: string, options?: RequestInit) {
     cache: "no-store",
   });
 
+  const responseText = await response.text();
   if (!response.ok) {
-    const errorText = await response.text();
+    const errorText = responseText || response.statusText;
     throw new Error(`K8s API Error: ${response.status} - ${errorText}`);
   }
 
-  return response.json();
+  return responseText ? JSON.parse(responseText) : null;
 }

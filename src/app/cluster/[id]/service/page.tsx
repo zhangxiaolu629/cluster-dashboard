@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layout/PageLayout";
 import ServiceList, { ServiceItem } from "@/components/lists/ServiceList";
 import { k8sFetch } from "@/lib/k8s";
+import { requireAuthenticatedPage } from "@/lib/require-page-session";
 
 type ServiceResponse = {
   items?: Array<{
@@ -19,6 +20,8 @@ type ServiceResponse = {
 
 export default async function ServicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage(`/cluster/${id}/service`);
+
   let initialData: ServiceItem[] = [];
 
   try {
