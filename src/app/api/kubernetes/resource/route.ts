@@ -180,7 +180,10 @@ export async function PUT(request: NextRequest) {
       );
     }
   } else if (manifestNamespace) {
-    return NextResponse.json({ error: "Namespace 资源不能设置 metadata.namespace" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Namespace 资源不能设置 metadata.namespace" },
+      { status: 400 }
+    );
   }
 
   const path = buildResourcePath(kind, name, namespace);

@@ -3,6 +3,8 @@ import StatefulSetList, { StatefulSetItem } from "@/components/lists/StatefulSet
 import { k8sFetch } from "@/lib/k8s";
 import { requireAuthenticatedPage } from "@/lib/require-page-session";
 
+export const dynamic = "force-dynamic";
+
 type NamespaceResponse = {
   items?: Array<{
     metadata?: {

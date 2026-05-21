@@ -49,12 +49,7 @@ describe("/api/kubernetes/resource", () => {
         kind: "Deployment",
         name: "web",
         namespace: "prod",
-        yaml: [
-          "kind: Deployment",
-          "metadata:",
-          "  name: web",
-          "  namespace: staging",
-        ].join("\n"),
+        yaml: ["kind: Deployment", "metadata:", "  name: web", "  namespace: staging"].join("\n"),
       }),
     }) as Parameters<typeof PUT>[0];
 

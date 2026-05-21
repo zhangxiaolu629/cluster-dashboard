@@ -4,6 +4,8 @@ import YamlCreate from "@/components/forms/YamlCreate";
 import { getInitialYamlForKind } from "@/lib/k8sYamlTemplates";
 import { requireAuthenticatedPage } from "@/lib/require-page-session";
 
+export const dynamic = "force-dynamic";
+
 export default async function YamlCreatePage({
   params,
   searchParams,
