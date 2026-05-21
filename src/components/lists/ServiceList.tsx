@@ -166,6 +166,7 @@ export default function ServiceList({
   const openYamlModal = async (record: ServiceItem) => {
     setYamlModalOpen(true);
     setYamlModalLoading(true);
+    setEditingYaml("");
     setEditingResource({ name: record.name, namespace: record.namespace });
     try {
       const query = new URLSearchParams({
@@ -186,6 +187,7 @@ export default function ServiceList({
   };
 
   const handleYamlUpdate = async () => {
+    if (!editingResource) return;
     setYamlUpdating(true);
     try {
       const res = await fetch("/api/kubernetes/resource", {
@@ -193,6 +195,8 @@ export default function ServiceList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind: "Service",
+          name: editingResource.name,
+          namespace: editingResource.namespace,
           yaml: editingYaml,
         }),
       });
@@ -276,6 +280,7 @@ export default function ServiceList({
         onCancel={() => setYamlModalOpen(false)}
         onOk={handleYamlUpdate}
         confirmLoading={yamlUpdating}
+        okButtonProps={{ disabled: yamlModalLoading || !editingYaml.trim() }}
         width={760}
       >
         <Input.TextArea

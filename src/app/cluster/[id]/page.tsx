@@ -2,7 +2,10 @@ import { Card, Layout } from "antd";
 import PageLayout from "@/components/layout/PageLayout";
 import ClusterSummary from "@/components/cluster/ClusterSummary";
 import ClusterTabs from "@/components/cluster/ClusterTabs";
+import { requireAuthenticatedPage } from "@/lib/require-page-session";
 import { Service } from "@volcengine/openapi";
+
+export const dynamic = "force-dynamic";
 
 type VolcCluster = {
   Id: string;
@@ -32,6 +35,8 @@ type ListClustersResponse = {
 
 export default async function ClusterDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage(`/cluster/${id}`);
+
   let initialClusterInfo: ClusterInfo | null = null;
 
   try {

@@ -242,6 +242,7 @@ export default function DeploymentList({
   const openYamlModal = async (record: DeploymentItem) => {
     setYamlModalOpen(true);
     setYamlModalLoading(true);
+    setEditingYaml("");
     setEditingResource({ name: record.name, namespace: record.namespace });
     try {
       const query = new URLSearchParams({
@@ -270,6 +271,8 @@ export default function DeploymentList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind: "Deployment",
+          name: editingResource.name,
+          namespace: editingResource.namespace,
           yaml: editingYaml,
         }),
       });
@@ -376,6 +379,7 @@ export default function DeploymentList({
         onCancel={() => setYamlModalOpen(false)}
         onOk={handleYamlUpdate}
         confirmLoading={yamlUpdating}
+        okButtonProps={{ disabled: yamlModalLoading || !editingYaml.trim() }}
         width={760}
       >
         <Input.TextArea

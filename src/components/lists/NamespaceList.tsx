@@ -136,6 +136,7 @@ export default function NamespaceList({
   const openYamlModal = async (record: NamespaceItem) => {
     setYamlModalOpen(true);
     setYamlModalLoading(true);
+    setEditingYaml("");
     setEditingName(record.name);
     try {
       const query = new URLSearchParams({
@@ -155,6 +156,7 @@ export default function NamespaceList({
   };
 
   const handleYamlUpdate = async () => {
+    if (!editingName) return;
     setYamlUpdating(true);
     try {
       const res = await fetch("/api/kubernetes/resource", {
@@ -162,6 +164,7 @@ export default function NamespaceList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind: "Namespace",
+          name: editingName,
           yaml: editingYaml,
         }),
       });
@@ -259,6 +262,7 @@ export default function NamespaceList({
         onCancel={() => setYamlModalOpen(false)}
         onOk={handleYamlUpdate}
         confirmLoading={yamlUpdating}
+        okButtonProps={{ disabled: yamlModalLoading || !editingYaml.trim() }}
         width={760}
       >
         <Input.TextArea

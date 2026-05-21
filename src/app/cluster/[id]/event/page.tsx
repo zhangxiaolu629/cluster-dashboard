@@ -1,7 +1,10 @@
 import PageLayout from "@/components/layout/PageLayout";
 import EventList, { EventItem } from "@/components/lists/EventList";
 import { k8sFetch } from "@/lib/k8s";
+import { requireAuthenticatedPage } from "@/lib/require-page-session";
 import type { K8sEvent } from "@/types/k8s";
+
+export const dynamic = "force-dynamic";
 
 type EventResponse = {
   items?: K8sEvent[];
@@ -9,6 +12,8 @@ type EventResponse = {
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireAuthenticatedPage(`/cluster/${id}/event`);
+
   let initialData: EventItem[] = [];
 
   try {
