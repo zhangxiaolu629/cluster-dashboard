@@ -47,9 +47,27 @@ describe("requirePageSession", () => {
   });
 
   it("returns the session when a user is authenticated", async () => {
+    const now = new Date();
     const session = {
-      session: { id: "session-1" },
-      user: { id: "user-1" },
+      session: {
+        id: "session-1",
+        createdAt: now,
+        updatedAt: now,
+        userId: "user-1",
+        expiresAt: now,
+        token: "token-1",
+        ipAddress: null,
+        userAgent: null,
+      },
+      user: {
+        id: "user-1",
+        name: "Test User",
+        email: "test@example.com",
+        emailVerified: true,
+        createdAt: now,
+        updatedAt: now,
+        image: null,
+      },
     };
     vi.mocked(auth.api.getSession).mockResolvedValue(session);
 

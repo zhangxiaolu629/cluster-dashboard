@@ -73,9 +73,9 @@ describe("protected server pages", () => {
   it("does not prefetch Kubernetes resources when the page session is rejected", async () => {
     mocks.requirePageSession.mockRejectedValue(new Error("redirect:/login"));
 
-    await expect(
-      DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })
-    ).rejects.toThrow("redirect:/login");
+    await expect(DeploymentPage({ params: Promise.resolve({ id: "cluster-1" }) })).rejects.toThrow(
+      "redirect:/login"
+    );
 
     expect(k8sFetch).not.toHaveBeenCalled();
   });
