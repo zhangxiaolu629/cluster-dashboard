@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layout/PageLayout";
 import ServiceList, { ServiceItem } from "@/components/lists/ServiceList";
 import { k8sFetch } from "@/lib/k8s";
+import { requirePageSession } from "@/lib/require-page-session";
 
 type ServiceResponse = {
   items?: Array<{
@@ -17,7 +18,11 @@ type ServiceResponse = {
   }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ServicePage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePageSession();
+
   const { id } = await params;
   let initialData: ServiceItem[] = [];
 
