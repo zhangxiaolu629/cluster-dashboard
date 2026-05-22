@@ -1,4 +1,5 @@
 import HomePage from "@/components/cluster/HomePage";
+import { requirePageSession } from "@/lib/require-page-session";
 import { Service } from "@volcengine/openapi";
 
 type VolcCluster = {
@@ -16,7 +17,11 @@ type ListClustersResponse = {
   };
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
+  await requirePageSession();
+
   let initialClusters: VolcCluster[] = [];
 
   try {
