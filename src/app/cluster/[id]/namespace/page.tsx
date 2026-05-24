@@ -1,6 +1,9 @@
 import PageLayout from "@/components/layout/PageLayout";
 import NamespaceList, { NamespaceItem } from "@/components/lists/NamespaceList";
 import { k8sFetch } from "@/lib/k8s";
+import { requirePageSession } from "@/lib/require-page-session";
+
+export const dynamic = "force-dynamic";
 
 type NamespaceResponse = {
   items?: Array<{
@@ -16,6 +19,8 @@ type NamespaceResponse = {
 };
 
 export default async function NamespacePage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePageSession();
+
   const { id } = await params;
   let initialData: NamespaceItem[] = [];
 
